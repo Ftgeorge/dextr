@@ -3,6 +3,7 @@ import { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import { ComponentStatus } from "@/lib/component-registry"
 import { CheckCircle2, AlertCircle, Wrench } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
 interface WorkshopCardProps {
     name: string
@@ -14,7 +15,7 @@ interface WorkshopCardProps {
     tags: string[]
 }
 
-const statusIcons: Record<string, any> = {
+const statusIcons: Record<ComponentStatus, LucideIcon> = {
     "production-ready": CheckCircle2,
     "experimental": Wrench,
     "in-progress": AlertCircle,

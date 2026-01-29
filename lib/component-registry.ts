@@ -49,7 +49,7 @@ export const components: ComponentEntry[] = [
         name: "Button",
         slug: "button",
         category: "Inputs",
-        description: "Single button component with variants (primary, secondary, outline).",
+        description: "Single button component with variants (primary, secondary, outline, ghost, destructive, success, warning).",
         component: ButtonDemo,
         sourcePath: "components/ui/buttons/button.tsx",
         status: "production-ready",
@@ -57,20 +57,35 @@ export const components: ComponentEntry[] = [
         usage: {
             whenToUse: [
                 "Primary actions (primary variant).",
-                "Secondary actions (secondary or outline variants).",
+                "Secondary actions (secondary, outline, or ghost variants).",
+                "Status/feedback actions (success, warning, destructive variants).",
                 "Any place you need a consistent button API across projects."
             ],
             whenNotToUse: [
                 "As a link (use an anchor or Link component instead).",
-                "For destructive actions unless a destructive variant exists."
+                "For navigation between routes (use Link/navigation components instead).",
+                "When the only state is loading (consider disabling the whole UI section instead)."
             ],
             props: [
-                { name: "variant", type: "'primary' | 'secondary' | 'outline'", description: "Visual style variant." },
-                { name: "size", type: "'sm' | 'md' | 'lg'", description: "Button size." },
+                { name: "variant", type: "'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'success' | 'warning'", description: "Visual style variant." },
+                { name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", description: "Button size." },
+                { name: "isLoading", type: "boolean", description: "Shows a spinner and disables the button." },
+                { name: "leftIcon", type: "ReactNode", description: "Optional leading icon (hidden while loading)." },
+                { name: "rightIcon", type: "ReactNode", description: "Optional trailing icon (hidden while loading)." },
+                { name: "fullWidth", type: "boolean", description: "Expands button to full container width." },
                 { name: "children", type: "ReactNode", description: "Label content for the button." },
                 { name: "onClick", type: "() => void", description: "Event handler for click interactions." },
                 { name: "className", type: "string", description: "Optional CSS classes." }
             ]
+        },
+        notes: {
+            decisions: [
+                "Implemented as a forwardRef button to support composition and focus management.",
+                "Unified variants and sizes via lookup maps to keep the API stable and prevent class sprawl.",
+                "Loading state disables the button and swaps icons for a spinner to avoid layout jitter.",
+                "Uses focus ring + offset for accessible keyboard navigation."
+            ],
+            performance: "Zero-dependency component; class merging via cn() and constant style maps."
         },
         updatedAt: "2026-01-29",
         reuseCount: 0,
