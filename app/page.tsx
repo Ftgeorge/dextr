@@ -414,11 +414,11 @@ export default function Home() {
             className="w-full sm:w-auto"
           >
             <Link
-              href="/projects"
+              href="/workbench"
               className="group block rounded-full border border-zinc-800/50 bg-zinc-900/20 px-8 py-4 text-sm font-black uppercase tracking-widest text-zinc-400 backdrop-blur-sm transition-all duration-300 hover:border-zinc-600 hover:bg-zinc-900/40 hover:text-zinc-100 hover:shadow-[0_8px_20px_rgba(0,0,0,0.3)]"
             >
               <span className="transition-transform duration-300 inline-block group-hover:translate-x-0.5">
-                View Projects
+                Workbench
               </span>
             </Link>
           </motion.div>

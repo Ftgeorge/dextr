@@ -1,6 +1,7 @@
 import { ButtonDemo } from "@/components/ui/buttons/button-demo"
+import { ComingSoon } from "@/components/ui/coming-soon"
 import { BasicCard } from "@/components/ui/cards/basic-card"
-import { ReactNode } from "react"
+import React, { ReactNode } from "react"
 
 export type ComponentStatus = "production-ready" | "experimental" | "in-progress"
 
@@ -90,6 +91,138 @@ export const components: ComponentEntry[] = [
         updatedAt: "2026-01-29",
         reuseCount: 0,
         isFeatured: true
+    },
+    {
+        name: "Input",
+        slug: "input",
+        category: "Inputs",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Input" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "form"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Select",
+        slug: "select",
+        category: "Inputs",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Select" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "dropdown"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Checkbox",
+        slug: "checkbox",
+        category: "Inputs",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Checkbox" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "form"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Switch",
+        slug: "switch",
+        category: "Inputs",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Switch" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "toggle"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Tabs",
+        slug: "tabs",
+        category: "Navigation",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Tabs" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "navigation"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Breadcrumbs",
+        slug: "breadcrumbs",
+        category: "Navigation",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Breadcrumbs" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "navigation"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Dialog",
+        slug: "dialog",
+        category: "Overlays",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Dialog" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "modal"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Popover",
+        slug: "popover",
+        category: "Overlays",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Popover" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "overlay"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Tooltip",
+        slug: "tooltip",
+        category: "Overlays",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Tooltip" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "overlay"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Badge",
+        slug: "badge",
+        category: "Data Display",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Badge" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "status"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
+    },
+    {
+        name: "Table",
+        slug: "table",
+        category: "Data Display",
+        description: "Coming soon.",
+        component: () => React.createElement(ComingSoon, { title: "Table" }),
+        sourcePath: "components/ui/coming-soon.tsx",
+        status: "in-progress",
+        tags: ["coming-soon", "data"],
+        updatedAt: "2026-01-30",
+        reuseCount: 0
     },
     {
         name: "Basic Card",

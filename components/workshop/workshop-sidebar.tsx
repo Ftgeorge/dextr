@@ -4,10 +4,13 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { components, ComponentStatus } from "@/lib/component-registry"
+import { ComingSoon } from "@/components/ui/coming-soon"
 import { cn } from "@/lib/utils"
 import { Search, ChevronRight, CheckCircle2, AlertCircle, Wrench } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
+import Logo from "../ui/logo"
 
-const statusIcons: Record<string, any> = {
+const statusIcons: Record<ComponentStatus, LucideIcon> = {
     "production-ready": CheckCircle2,
     "experimental": Wrench,
     "in-progress": AlertCircle,
@@ -17,9 +20,12 @@ interface WorkshopSidebarProps {
     className?: string
 }
 
+type Framework = "next" | "vue" | "react-native" | "flutter"
+
 export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedIndex, setSelectedIndex] = useState(-1)
+    const [framework, setFramework] = useState<Framework>("next")
     const searchInputRef = useRef<HTMLInputElement>(null)
     const listRef = useRef<HTMLDivElement>(null)
     const pathname = usePathname()
@@ -104,6 +110,65 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
         >
             {/* Sticky Search Header */}
             <div className="sticky top-0 z-10 border-b border-zinc-900 bg-zinc-950 p-4">
+                <div className="mb-4 flex flex-col gap-3">
+                    <Link href="/workshop" className="flex items-center gap-3">
+                        <Logo/>
+                    </Link>
+
+                    <div className="flex items-center justify-between">
+                        <div className="flex min-w-0 flex-1">
+                            <div className="w-full overflow-x-auto rounded-xl border border-zinc-900 bg-zinc-900/30 p-1 [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                                <div className="flex min-w-max items-center gap-1 whitespace-nowrap">
+                                    <button
+                                type="button"
+                                onClick={() => setFramework("next")}
+                                className={cn(
+                                    "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                    framework === "next" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                )}
+                            >
+                                Next
+                            </button>
+                                    <button
+                                type="button"
+                                onClick={() => setFramework("vue")}
+                                className={cn(
+                                    "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                    framework === "vue" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                )}
+                            >
+                                Vue
+                            </button>
+                                    <button
+                                type="button"
+                                onClick={() => setFramework("react-native")}
+                                className={cn(
+                                    "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                    framework === "react-native" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                )}
+                            >
+                                React Native
+                            </button>
+                                    <button
+                                type="button"
+                                onClick={() => setFramework("flutter")}
+                                className={cn(
+                                    "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                    framework === "flutter" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                )}
+                            >
+                                Flutter
+                            </button>
+                                </div>
+                            </div>
+                        </div>
+                        {/* {framework !== "next" ? (
+                            <span className="rounded-full border border-zinc-900 bg-zinc-900/20 px-2 py-1 text-[9px] font-black uppercase tracking-widest text-zinc-600">
+                                Coming soon
+                            </span>
+                        ) : null} */}
+                    </div>
+                </div>
                 <div className="relative group" role="search">
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-accent transition-colors" />
                     <input
@@ -126,7 +191,14 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
 
             {/* Scrollable Component List */}
             <div ref={listRef} className="flex-1 overflow-y-auto" role="list">
-                {Object.keys(groupedComponents).length === 0 ? (
+                {framework !== "next" ? (
+                    <div className="p-4">
+                        <ComingSoon
+                            title="Framework support"
+                            description="Vue, React Native, and Flutter component implementations will be added here."
+                        />
+                    </div>
+                ) : Object.keys(groupedComponents).length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
                         <Search size={32} className="mb-3 text-zinc-800" />
                         <p className="text-xs font-bold text-zinc-600">No components found</p>
@@ -165,7 +237,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                                         >
                                             {/* Status Icon */}
                                             <div className={cn(
-                                                "flex-shrink-0",
+                                                "shrink-0",
                                                 component.status === "production-ready" && "text-emerald-500",
                                                 component.status === "experimental" && "text-amber-500",
                                                 component.status === "in-progress" && "text-blue-500"
@@ -190,7 +262,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                                             <ChevronRight
                                                 size={14}
                                                 className={cn(
-                                                    "flex-shrink-0 transition-all",
+                                                    "shrink-0 transition-all",
                                                     isActive ? "text-accent opacity-100" : "text-zinc-700 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5"
                                                 )}
                                             />

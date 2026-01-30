@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ComponentStatus } from "@/lib/component-registry"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, AlertCircle, Wrench, ChevronRight } from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 
 interface ComponentListItemProps {
     name: string
@@ -15,7 +16,7 @@ interface ComponentListItemProps {
     description: string
 }
 
-const statusIcons: Record<string, any> = {
+const statusIcons: Record<ComponentStatus, LucideIcon> = {
     "production-ready": CheckCircle2,
     "experimental": Wrench,
     "in-progress": AlertCircle,
@@ -51,14 +52,14 @@ export function ComponentListItem({
                 </div>
 
                 {/* Category Column */}
-                <div className="hidden w-24 flex-shrink-0 sm:block">
+                <div className="hidden w-24 shrink-0 sm:block">
                     <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
                         {category}
                     </span>
                 </div>
 
                 {/* Status Column */}
-                <div className="hidden w-32 flex-shrink-0 items-center gap-2 sm:flex">
+                <div className="hidden w-32 shrink-0 items-center gap-2 sm:flex">
                     <div className={cn(
                         "flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-widest",
                         status === "production-ready" && "bg-emerald-500/10 text-emerald-500",
@@ -71,7 +72,7 @@ export function ComponentListItem({
                 </div>
 
                 {/* Reuse Count Column */}
-                <div className="hidden w-20 flex-shrink-0 text-center sm:block">
+                <div className="hidden w-20 shrink-0 text-center sm:block">
                     <span className="text-[10px] font-bold text-zinc-400">
                         {reuseCount}
                     </span>
@@ -79,14 +80,14 @@ export function ComponentListItem({
                 </div>
 
                 {/* Date Column */}
-                <div className="hidden w-24 flex-shrink-0 text-right sm:block">
+                <div className="hidden w-24 shrink-0 text-right sm:block">
                     <span className="text-[10px] font-medium text-zinc-500">
                         {updatedAt}
                     </span>
                 </div>
 
                 {/* Arrow */}
-                <div className="flex-shrink-0 text-zinc-800 transition-transform group-hover:translate-x-1 group-hover:text-zinc-600">
+                <div className="shrink-0 text-zinc-800 transition-transform group-hover:translate-x-1 group-hover:text-zinc-600">
                     <ChevronRight size={16} />
                 </div>
             </div>
