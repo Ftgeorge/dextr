@@ -4,7 +4,6 @@ import { useState } from "react"
 import { WorkshopSidebar } from "@/components/workshop/workshop-sidebar"
 import { MobileSidebarToggle } from "@/components/workshop/mobile-sidebar-toggle"
 import { MobileSidebarOverlay } from "@/components/workshop/mobile-sidebar-overlay"
-import { OnboardingModal } from "@/components/workshop/onboarding-modal"
 import Logo from "@/components/ui/logo"
 
 export default function WorkshopComponentsLayout({
@@ -16,8 +15,6 @@ export default function WorkshopComponentsLayout({
 
     return (
         <div className="flex h-screen overflow-hidden bg-zinc-950">
-            <OnboardingModal />
-            
             {/* Desktop Sidebar - Fixed width, scrollable */}
             <div className="hidden lg:flex lg:shrink-0">
                 <WorkshopSidebar className="w-80" />

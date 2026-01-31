@@ -1,0 +1,61 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="400" fill="#09090B"/>
+  <!-- Code viewer container -->
+  <rect x="50" y="50" width="500" height="300" rx="12" fill="#18181B" stroke="#27272A" stroke-width="2"/>
+  
+  <!-- Header with copy button -->
+  <rect x="70" y="70" width="460" height="30" rx="6" fill="#27272A"/>
+  <text x="85" y="90" fill="#A1A1AA" font-family="monospace" font-size="12">Button.tsx</text>
+  <rect x="480" y="78" width="40" height="20" rx="4" fill="#8B5CF6"/>
+  <text x="500" y="91" text-anchor="middle" fill="#FFFFFF" font-family="system-ui" font-size="10">Copy</text>
+  
+  <!-- Code content -->
+  <rect x="70" y="110" width="460" height="220" rx="6" fill="#09090B"/>
+  
+  <!-- Code lines with syntax highlighting -->
+  <text x="85" y="130" fill="#8B5CF6" font-family="monospace" font-size="11">import</text>
+  <text x="125" y="130" fill="#A1A1AA" font-family="monospace" font-size="11"> React </text>
+  <text x="175" y="130" fill="#8B5CF6" font-family="monospace" font-size="11">from</text>
+  <text x="210" y="130" fill="#A1A1AA" font-family="monospace" font-size="11"> 'react'</text>
+  
+  <text x="85" y="150" fill="#8B5CF6" font-family="monospace" font-size="11">import</text>
+  <text x="125" y="150" fill="#A1A1AA" font-family="monospace" font-size="11"> { cn } </text>
+  <text x="185" y="150" fill="#8B5CF6" font-family="monospace" font-size="11">from</text>
+  <text x="220" y="150" fill="#A1A1AA" font-family="monospace" font-size="11"> '@/lib/utils'</text>
+  
+  <text x="85" y="180" fill="#F59E0B" font-family="monospace" font-size="11">interface</text>
+  <text x="145" y="180" fill="#A1A1AA" font-family="monospace" font-size="11"> ButtonProps {</text>
+  <text x="100" y="200" fill="#A1A1AA" font-family="monospace" font-size="11"> variant?: </text>
+  <text x="170" y="200" fill="#22C55E" font-family="monospace" font-size="11">'primary' | 'secondary'</text>
+  <text x="100" y="220" fill="#A1A1AA" font-family="monospace" font-size="11"> size?: </text>
+  <text x="150" y="220" fill="#22C55E" font-family="monospace" font-size="11">'sm' | 'md' | 'lg'</text>
+  <text x="100" y="240" fill="#A1A1AA" font-family="monospace" font-size="11"> children: React.ReactNode</text>
+  <text x="85" y="260" fill="#A1A1AA" font-family="monospace" font-size="11">}</text>
+  
+  <text x="85" y="290" fill="#8B5CF6" font-family="monospace" font-size="11">export</text>
+  <text x="130" y="290" fill="#8B5CF6" font-family="monospace" font-size="11"> function</text>
+  <text x="195" y="290" fill="#22C55E" font-family="monospace" font-size="11">Button</text>
+  <text x="240" y="290" fill="#A1A1AA" font-family="monospace" font-size="11">({ variant, size, children }) {</text>
+  <text x="100" y="310" fill="#8B5CF6" font-family="monospace" font-size="11"> return</text>
+  <text x="150" y="310" fill="#A1A1AA" font-family="monospace" font-size="11"> (</text>
+  <text x="165" y="310" fill="#F59E0B" font-family="monospace" font-size="11">&lt;button</text>
+  <text x="215" y="310" fill="#8B5CF6" font-family="monospace" font-size="11"> className</text>
+  <text x="270" y="310" fill="#A1A1AA" font-family="monospace" font-size="11">={cn(styles.button, styles[variant])}&gt;</text>
+  <text x="100" y="330" fill="#A1A1AA" font-family="monospace" font-size="11"> {children}</text>
+  <text x="100" y="350" fill="#F59E0B" font-family="monospace" font-size="11">&lt;/button&gt;</text>
+  <text x="85" y="370" fill="#A1A1AA" font-family="monospace" font-size="11">)</text>
+  
+  <!-- Line numbers -->
+  <text x="60" y="130" fill="#52525B" font-family="monospace" font-size="9">1</text>
+  <text x="60" y="150" fill="#52525B" font-family="monospace" font-size="9">2</text>
+  <text x="60" y="180" fill="#52525B" font-family="monospace" font-size="9">3</text>
+  <text x="60" y="200" fill="#52525B" font-family="monospace" font-size="9">4</text>
+  <text x="60" y="220" fill="#52525B" font-family="monospace" font-size="9">5</text>
+  <text x="60" y="240" fill="#52525B" font-family="monospace" font-size="9">6</text>
+  <text x="60" y="260" fill="#52525B" font-family="monospace" font-size="9">7</text>
+  <text x="60" y="290" fill="#52525B" font-family="monospace" font-size="9">8</text>
+  <text x="60" y="310" fill="#52525B" font-family="monospace" font-size="9">9</text>
+  <text x="60" y="330" fill="#52525B" font-family="monospace" font-size="9">10</text>
+  <text x="60" y="350" fill="#52525B" font-family="monospace" font-size="9">11</text>
+  <text x="60" y="370" fill="#52525B" font-family="monospace" font-size="9">12</text>
+</svg>

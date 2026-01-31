@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {  components } from "@/lib/component-registry"
 import { ComponentPreview } from "@/components/workshop/component-preview"
 import { CodeInspector } from "@/components/workshop/code-inspector"
+import { Dropdown } from "@/components/ui/dropdown"
 import { cn } from "@/lib/utils"
 import {
     Eye,
@@ -19,6 +20,79 @@ import {
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
+// Preview Controls Component
+function ComponentPreviewControls({ 
+    componentEntry, 
+    previewProps, 
+    setPreviewProps 
+}: { 
+    componentEntry: any
+    previewProps: Record<string, any>
+    setPreviewProps: (props: Record<string, any>) => void 
+}) {
+    const handlePropChange = (propName: string, value: any) => {
+        setPreviewProps(prev => ({ ...prev, [propName]: value }))
+    }
+
+    return (
+        <div className="flex flex-wrap gap-3 p-4 border-b border-zinc-800">
+            {componentEntry.usage?.props?.map((prop: any) => (
+                <div key={prop.name} className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-zinc-400">{prop.name}:</span>
+                    
+                    {prop.type.includes("boolean") ? (
+                        <Dropdown
+                            value={previewProps[prop.name] ? "true" : "false"}
+                            onValueChange={(value) => handlePropChange(prop.name, value === "true")}
+                            options={[
+                                { value: "true", label: "True" },
+                                { value: "false", label: "False" },
+                            ]}
+                            className="w-20"
+                        />
+                    ) : prop.name === "variant" ? (
+                        <Dropdown
+                            value={previewProps[prop.name] || "primary"}
+                            onValueChange={(value) => handlePropChange(prop.name, value)}
+                            options={[
+                                { value: "primary", label: "Primary" },
+                                { value: "secondary", label: "Secondary" },
+                                { value: "outline", label: "Outline" },
+                                { value: "ghost", label: "Ghost" },
+                                { value: "destructive", label: "Destructive" },
+                                { value: "success", label: "Success" },
+                                { value: "warning", label: "Warning" },
+                                { value: "icon", label: "Icon" },
+                            ]}
+                            className="w-32"
+                        />
+                    ) : prop.name === "size" ? (
+                        <Dropdown
+                            value={previewProps[prop.name] || "md"}
+                            onValueChange={(value) => handlePropChange(prop.name, value)}
+                            options={[
+                                { value: "xs", label: "XS" },
+                                { value: "sm", label: "SM" },
+                                { value: "md", label: "MD" },
+                                { value: "lg", label: "LG" },
+                                { value: "xl", label: "XL" },
+                            ]}
+                            className="w-24"
+                        />
+                    ) : prop.name === "children" ? (
+                        <input
+                            type="text"
+                            value={previewProps[prop.name] || ""}
+                            onChange={(e) => handlePropChange(prop.name, e.target.value)}
+                            className="w-24 rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-xs text-zinc-300"
+                        />
+                    ) : null}
+                </div>
+            ))}
+        </div>
+    )
+}
+
 interface ComponentDetailProps {
     slug: string
     sourceCode: string
@@ -26,14 +100,14 @@ interface ComponentDetailProps {
     basename: string
 }
 
-type Tab = "Preview" | "Code" | "Usage" | "Notes"
+type Tab = "Preview" | "Code" | "Usage" | "Notes" | "Changelog"
 
 const tabIcons: Record<Tab, LucideIcon> = {
     "Preview": Eye,
     "Code": Code2,
     "Usage": BookOpen,
     "Notes": StickyNote,
-    // "Versions": History,
+    "Changelog": History,
 }
 
 const statusIcons: Record<string, LucideIcon> = {
@@ -44,13 +118,37 @@ const statusIcons: Record<string, LucideIcon> = {
 
 export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }: ComponentDetailProps) {
     const [activeTab, setActiveTab] = useState<Tab>("Preview")
+    const [framework, setFramework] = useState("next.js")
     const componentEntry = components.find(c => c.slug === slug)
+    
+    // Preview controls state
+    const [previewProps, setPreviewProps] = useState<Record<string, any>>({
+        variant: "primary",
+        size: "md",
+        isLoading: false,
+        fullWidth: false,
+        children: "Button",
+        hasIcon: false,
+        iconPosition: "left",
+        iconPack: "lucide",
+        iconName: "none",
+        leftIcon: null,
+        rightIcon: null
+    })
 
     if (!componentEntry) return null
 
     const { component: Component, status, tags, reuseCount, updatedAt, sourcePath } = componentEntry
 
-    const tabs: Tab[] = ["Preview", "Code", "Usage", "Notes"]
+    const tabs: Tab[] = ["Preview", "Code", "Usage", "Notes", "Changelog"]
+    
+    const frameworkOptions = [
+        { value: "next.js", label: "Next.js" },
+        { value: "react.js", label: "React.js" },
+        { value: "vue", label: "Vue" },
+        { value: "svelte", label: "Svelte" },
+        { value: "angular", label: "Angular" },
+    ]
 
     const StatusIcon = statusIcons[status] || AlertCircle
 
@@ -67,6 +165,32 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                     )}>
                         <StatusIcon size={14} />
                         {status.replace("-", " ")}
+                    </div>
+
+                    {/* Web Version Badge */}
+                    <div className="flex items-center gap-2 text-zinc-500">
+                        <span className="text-[10px] font-bold uppercase tracking-widest">Web</span>
+                        <div className={cn(
+                            "rounded-full px-2 py-0.5 text-[9px] font-bold",
+                            componentEntry.stacks.web.status === "stable" && "bg-emerald-500/20 text-emerald-500",
+                            componentEntry.stacks.web.status === "beta" && "bg-blue-500/20 text-blue-500",
+                            componentEntry.stacks.web.status === "alpha" && "bg-amber-500/20 text-amber-500"
+                        )}>
+                            v{componentEntry.stacks.web.version}
+                        </div>
+                    </div>
+
+                    {/* React Native Version Badge */}
+                    <div className="flex items-center gap-2 text-zinc-500">
+                        <span className="text-[10px] font-bold uppercase tracking-widest">React Native</span>
+                        <div className={cn(
+                            "rounded-full px-2 py-0.5 text-[9px] font-bold",
+                            componentEntry.stacks["react-native"].status === "stable" && "bg-emerald-500/20 text-emerald-500",
+                            componentEntry.stacks["react-native"].status === "beta" && "bg-blue-500/20 text-blue-500",
+                            componentEntry.stacks["react-native"].status === "alpha" && "bg-amber-500/20 text-amber-500"
+                        )}>
+                            v{componentEntry.stacks["react-native"].version}
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-zinc-500">
@@ -91,25 +215,38 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
 
             {/* Tabs Layout */}
             <div className="flex flex-col gap-8">
-                <div className="flex flex-wrap gap-2 rounded-2xl bg-zinc-900/40 p-1.5 border border-zinc-900 w-fit">
-                    {tabs.map((tab) => {
-                        const Icon = tabIcons[tab]
-                        return (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={cn(
-                                    "relative flex items-center gap-2.5 rounded-xl px-5 py-2 text-xs font-bold uppercase tracking-widest transition-all",
-                                    activeTab === tab
-                                        ? "bg-zinc-800 text-accent shadow-lg"
-                                        : "text-zinc-500 hover:text-zinc-300"
-                                )}
-                            >
-                                <Icon size={14} />
-                                {tab}
-                            </button>
-                        )
-                    })}
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap gap-2 rounded-2xl bg-zinc-900/40 p-1.5 border border-zinc-900 w-fit">
+                        {tabs.map((tab) => {
+                            const Icon = tabIcons[tab]
+                            return (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={cn(
+                                        "relative flex items-center gap-2.5 rounded-xl px-5 py-2 text-xs font-bold uppercase tracking-widest transition-all",
+                                        activeTab === tab
+                                            ? "bg-zinc-800 text-accent shadow-lg"
+                                            : "text-zinc-500 hover:text-zinc-300"
+                                    )}
+                                >
+                                    <Icon size={14} />
+                                    {tab}
+                                </button>
+                            )
+                        })}
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Framework:</span>
+                        <Dropdown
+                            value={framework}
+                            onValueChange={setFramework}
+                            options={frameworkOptions}
+                            aria-label="Select framework"
+                            className="w-32"
+                        />
+                    </div>
                 </div>
 
                 <div className="min-h-125">
@@ -123,7 +260,12 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                         >
                             {activeTab === "Preview" && (
                                 <ComponentPreview>
-                                    <Component />
+                                    <ComponentPreviewControls 
+                                        componentEntry={componentEntry}
+                                        previewProps={previewProps}
+                                        setPreviewProps={setPreviewProps}
+                                    />
+                                    <Component {...previewProps} />
                                 </ComponentPreview>
                             )}
 
@@ -216,32 +358,43 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                                 </div>
                             )}
 
-                            {/* {activeTab === "Versions" && (
-                                <div className="flex flex-col gap-4">
-                                    {componentEntry.versions?.map((v, i) => (
-                                        <div key={i} className="flex flex-col gap-6 rounded-2xl border border-zinc-900 bg-zinc-900/10 p-10 sm:flex-row">
-                                            <div className="flex flex-col gap-1 min-w-35">
-                                                <span className="text-xl font-black text-zinc-100 italic">v{v.version}</span>
-                                                <span className="text-[10px] text-zinc-600 uppercase font-black tracking-[0.2em]">{v.date}</span>
+                            {activeTab === "Changelog" && (
+                                <div className="flex flex-col gap-6">
+                                    {componentEntry.changelog?.map((entry, i) => (
+                                        <div key={i} className="flex flex-col gap-4 rounded-2xl border border-zinc-900 bg-zinc-900/10 p-8">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="text-lg font-black text-zinc-100">v{entry.version}</span>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-[10px] text-zinc-600 uppercase font-black tracking-[0.2em]">{entry.date}</span>
+                                                            <div className={cn(
+                                                                "inline-flex items-center rounded-full px-3 py-0.5 text-[9px] font-black uppercase tracking-[0.2em]",
+                                                                entry.stack === "web" ? "bg-blue-500/10 text-blue-500" : "bg-emerald-500/10 text-emerald-500"
+                                                            )}>
+                                                                {entry.stack}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col gap-3">
-                                                <span className={cn(
-                                                    "inline-flex w-fit items-center rounded-full px-3 py-0.5 text-[9px] font-black uppercase tracking-[0.2em]",
-                                                    v.status === "stable" ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"
-                                                )}>
-                                                    {v.status}
-                                                </span>
-                                                <p className="text-sm font-medium leading-relaxed text-zinc-400">{v.changelog}</p>
-                                            </div>
+                                            <ul className="space-y-2">
+                                                {entry.changes.map((change, j) => (
+                                                    <li key={j} className="flex items-start gap-3 text-sm text-zinc-300">
+                                                        <span className="text-accent mt-1">•</span>
+                                                        <span>{change}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
                                         </div>
                                     )) || (
-                                            <div className="flex h-60 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-zinc-900 text-zinc-800">
-                                                <History size={48} className="mb-4 opacity-10" />
-                                                <p className="text-xs font-black uppercase tracking-[0.3em]">No registry history found.</p>
-                                            </div>
-                                        )}
+                                        <div className="flex h-60 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-zinc-900 text-zinc-800">
+                                            <History size={48} className="mb-4 opacity-10" />
+                                            <p className="text-xs font-black uppercase tracking-[0.3em]">No changelog entries found.</p>
+                                        </div>
+                                    )}
                                 </div>
-                            )} */}
+                            )}
                         </motion.div>
                     </AnimatePresence>
                 </div>

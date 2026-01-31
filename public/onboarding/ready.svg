@@ -1,0 +1,32 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="400" fill="#09090B"/>
+  <!-- Success celebration -->
+  <rect x="50" y="50" width="500" height="300" rx="12" fill="#18181B" stroke="#27272A" stroke-width="2"/>
+  
+  <!-- Success icon -->
+  <circle cx="300" cy="150" r="40" fill="#22C55E" opacity="0.2"/>
+  <circle cx="300" cy="150" r="30" fill="#22C55E"/>
+  <path d="M285 150 L295 160 L315 140" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Success message -->
+  <text x="300" y="210" text-anchor="middle" fill="#FAFAFA" font-family="system-ui" font-size="20" font-weight="bold">You're Ready!</text>
+  <text x="300" y="235" text-anchor="middle" fill="#A1A1AA" font-family="system-ui" font-size="14">Start building with Dexter UI components</text>
+  
+  <!-- Next steps -->
+  <rect x="150" y="260" width="300" height="70" rx="8" fill="#27272A"/>
+  <text x="300" y="285" text-anchor="middle" fill="#A1A1AA" font-family="system-ui" font-size="12" font-weight="600">Quick Start</text>
+  <text x="170" y="305" fill="#52525B" font-family="system-ui" font-size="10">• Browse components in sidebar</text>
+  <text x="320" y="305" fill="#52525B" font-family="system-ui" font-size="10">• Try the workbench playground</text>
+  <text x="170" y="320" fill="#52525B" font-family="system-ui" font-size="10">• Copy code to your project</text>
+  <text x="320" y="320" fill="#52525B" font-family="system-ui" font-size="10">• Check component metadata</text>
+  
+  <!-- Confetti elements -->
+  <circle cx="150" cy="120" r="3" fill="#8B5CF6"/>
+  <circle cx="450" cy="140" r="3" fill="#F59E0B"/>
+  <circle cx="180" cy="180" r="2" fill="#22C55E"/>
+  <circle cx="420" cy="170" r="2" fill="#EF4444"/>
+  <circle cx="200" cy="130" r="3" fill="#3B82F6"/>
+  <circle cx="400" cy="190" r="3" fill="#8B5CF6"/>
+  <circle cx="170" cy="160" r="2" fill="#F59E0B"/>
+  <circle cx="430" cy="130" r="2" fill="#22C55E"/>
+</svg>

@@ -1,144 +1,233 @@
-import Link from "next/link"
-import { Construction, Lightbulb, ListTodo, GitBranch, FlaskConical, Gauge, Activity, Timer } from "lucide-react"
-import { components } from "@/lib/component-registry"
+"use client"
+
+import { useState, useEffect } from "react"
+import { Construction, Play, Code2, Copy, Check, Sparkles } from "lucide-react"
+import { useWorkbenchStore, ComponentNode } from "@/lib/workbench-store"
+import { ComponentRenderer } from "@/components/workbench/component-renderer"
+import { cn } from "@/lib/utils"
+import { WorkbenchSidebar } from "@/components/workbench/workbench-sidebar"
 
 export default function WorkbenchPage() {
-    const inProgressCount = components.filter(c => c.status === "in-progress").length;
-    const experimentalCount = components.filter(c => c.status === "experimental").length;
+    const [copiedCode, setCopiedCode] = useState(false)
+   
+    // Workbench store
+    const { 
+        currentScene, 
+        selectedNodeId, 
+        showAnimations, 
+        showCode, 
+        setCurrentScene,
+        selectNode,
+        toggleAnimations,
+        toggleCode,
+        createScene,
+        addAnimation,
+        animationPresets
+    } = useWorkbenchStore()
+
+    // Initialize with a default scene
+    useEffect(() => {
+        if (!currentScene) {
+            const rootNode: ComponentNode = {
+                id: 'root',
+                type: 'button',
+                props: {
+                    variant: 'primary',
+                    size: 'md',
+                    children: 'Hello World'
+                },
+                metadata: {
+                    version: '1.0.0',
+                    category: 'Inputs'
+                }
+            }
+            
+            const scene = createScene('Default Scene', rootNode)
+            setCurrentScene(scene)
+            
+            // Add a fade-in animation
+            const animation = {
+                ...animationPresets['fade-in'],
+                id: crypto.randomUUID(),
+                targetComponentId: rootNode.id
+            }
+            addAnimation(animation)
+        }
+    }, [currentScene, setCurrentScene, createScene, addAnimation, animationPresets])
+
+
+    const generateCode = () => {
+        if (!currentScene) return ""
+
+        const { root, animations } = currentScene
+        
+        // Generate component props
+        const props = Object.entries(root.props || {})
+            .filter(([, value]) => value !== undefined && value !== "")
+            .map(([key, value]) => {
+                if (typeof value === "boolean") {
+                    return value ? key : ""
+                }
+                if (typeof value === "string") {
+                    return `${key}="${value}"`
+                }
+                return `${key}={JSON.stringify(value)}`
+            })
+            .filter(Boolean)
+            .join(" ")
+
+        // Generate component code
+        let code = `<${root.type} ${props} />`
+
+        // Add animation code if animations exist
+        if (animations && animations.length > 0) {
+            const animationCode = animations.map(anim => {
+                const preset = animationPresets[anim.id]
+                if (!preset) return ""
+                
+                return `// ${preset.preset.name} Animation
+// Trigger: ${anim.trigger}
+// Duration: ${anim.config.duration}s
+// Easing: ${anim.config.easing}
+${anim.trigger === 'hover' ? 'whileHover={{ scale: 1.05, y: -2 }}' : `initial={{ opacity: 0, y: 20 }}
+animate={{ opacity: 1, y: 0 }}
+transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
+            }).join('\n\n')
+
+            if (animationCode) {
+                code += `\n\n// Animations:\n${animationCode}`
+            }
+        }
+
+        return code
+    }
+
+    const copyCode = async () => {
+        const code = generateCode()
+        await navigator.clipboard.writeText(code)
+        setCopiedCode(true)
+        setTimeout(() => setCopiedCode(false), 2000)
+    }
 
     return (
-        <div className="min-h-screen bg-zinc-950 py-16 text-zinc-100 font-sans selection:bg-accent selection:text-accent-foreground">
-            <div className="container mx-auto max-w-5xl px-4">
-                <header className="mb-16">
-                    <Link
-                        href="/workshop/components"
-                        className="group mb-8 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-zinc-500 hover:text-accent transition-colors"
-                    >
-                        <span className="text-lg transition-transform group-hover:-translate-x-1">←</span>
-                        Workshop Inventory
-                    </Link>
-                    <div className="flex flex-col gap-3">
-                        <div className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">
-                            Active Working Space
-                        </div>
-                        <h1 className="text-5xl font-black tracking-tighter sm:text-6xl">
-                            Workbench
-                        </h1>
-                        <p className="max-w-2xl text-lg text-zinc-500 leading-relaxed font-medium">
-                            A less-polished area for active experiments, raw ideas, and engineering refactors. Process is the priority here.
-                        </p>
-                    </div>
-                </header>
+        <div className="flex h-screen overflow-hidden bg-zinc-950 text-zinc-100 font-sans selection:bg-accent selection:text-accent-foreground">
+            
+            {/* Header */}
+            <div className="flex flex-1 overflow-hidden">
+                <WorkbenchSidebar/>
 
-                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                    {/* Main Working Columns */}
-                    <div className="lg:col-span-2 flex flex-col gap-8">
-
-                        {/* 🧪 In Progress Section */}
-                        <section className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-8">
-                            <div className="mb-8 flex items-center justify-between">
-                                <div className="flex items-center gap-3 text-blue-500">
-                                    <FlaskConical size={20} />
-                                    <h2 className="text-xs font-black uppercase tracking-[0.2em]">🧪 In Progress</h2>
+                {/* Main Content - Preview & Code */}
+                <main className="flex-1 overflow-y-auto">
+                    {/* Fixed Header */}
+                    <header className="sticky top-0 z-10 border-b border-zinc-900 bg-zinc-950/50 backdrop-blur-sm">
+                        <div className="container mx-auto max-w-7xl px-4 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <Construction size={20} className="text-accent" />
+                                    <div>
+                                        <h1 className="text-xl font-black tracking-tight">Workbench</h1>
+                                        <p className="text-[10px] text-zinc-500">Live Component Playground</p>
+                                    </div>
                                 </div>
-                                <span className="text-[10px] font-bold text-zinc-600">{inProgressCount} Active Tickets</span>
-                            </div>
-                            <div className="flex flex-col gap-4">
-                                {components.filter(c => c.status === "in-progress").map(c => (
-                                    <Link
-                                        key={c.slug}
-                                        href={`/workshop/components/${c.slug}`}
-                                        className="group flex flex-col gap-2 rounded-xl border border-zinc-900 bg-zinc-950 p-6 transition-all hover:border-blue-500/30"
+                                
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={toggleAnimations}
+                                        className={cn(
+                                            'p-2 rounded-lg transition-colors',
+                                            showAnimations ? 'bg-accent text-accent-foreground' : 'hover:bg-zinc-800'
+                                        )}
+                                        title="Toggle Animations"
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm font-black text-zinc-200 group-hover:text-blue-400 transition-colors">{c.name}</span>
-                                            <Timer size={14} className="text-zinc-800" />
-                                        </div>
-                                        <p className="text-xs text-zinc-500 font-medium italic">Current state: Alpha testing for Dextr layout constraints.</p>
-                                    </Link>
-                                ))}
-                                {inProgressCount === 0 && <p className="text-xs text-zinc-700 italic">No components currently in the active build phase.</p>}
-                            </div>
-                        </section>
-
-                        {/* 🧠 Ideas & Concepts */}
-                        <section className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-8">
-                            <div className="mb-8 flex items-center gap-3 text-amber-500">
-                                <Lightbulb size={20} />
-                                <h2 className="text-xs font-black uppercase tracking-[0.2em]">🧠 Ideas & Concepts</h2>
-                            </div>
-                            <ul className="space-y-6">
-                                <li className="flex flex-col gap-2">
-                                    <span className="text-sm font-black text-zinc-200">Variable Typography Scaling</span>
-                                    <p className="text-xs text-zinc-500 font-medium leading-relaxed">
-                                        Moving from viewport-based scaling to container-query-based fluid type. Essential for highly nested dashboard layouts.
-                                    </p>
-                                    <div className="flex gap-2">
-                                        <span className="rounded bg-zinc-900 px-2 py-0.5 text-[9px] font-bold text-zinc-600 uppercase">Architecture</span>
-                                        <span className="rounded bg-zinc-900 px-2 py-0.5 text-[9px] font-bold text-zinc-600 uppercase">Optimization</span>
-                                    </div>
-                                </li>
-                                <li className="border-t border-zinc-900/50 pt-6 flex flex-col gap-2 opacity-50">
-                                    <span className="text-sm font-black text-zinc-200">System-wide Glassmorphism Refactor</span>
-                                    <p className="text-xs text-zinc-500 font-medium leading-relaxed">
-                                        Standardizing refraction and saturation values across all interactive overlays.
-                                    </p>
-                                </li>
-                            </ul>
-                        </section>
-
-                        {/* 🔧 System Refactors */}
-                        <section className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-8">
-                            <div className="mb-8 flex items-center gap-3 text-emerald-500">
-                                <GitBranch size={20} />
-                                <h2 className="text-xs font-black uppercase tracking-[0.2em]">🔧 System Refactors</h2>
-                            </div>
-                            <div className="flex flex-col gap-4">
-                                <div className="rounded-xl border border-zinc-900 bg-zinc-900/40 p-6 flex flex-col gap-3">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-600">Priority: High</span>
-                                        <div className="h-px flex-1 bg-zinc-900" />
-                                    </div>
-                                    <h4 className="text-sm font-black text-zinc-300">Tailwind v4 Variable Migration</h4>
-                                    <p className="text-xs text-zinc-500 leading-relaxed font-medium">
-                                        Reason: Legacy color assignments in early components cause theme drift. Standardizing on CSS variables for accent colors.
-                                    </p>
+                                        <Sparkles size={16} />
+                                    </button>
+                                    
+                                    <button
+                                        onClick={toggleCode}
+                                        className={cn(
+                                            'p-2 rounded-lg transition-colors',
+                                            showCode ? 'bg-accent text-accent-foreground' : 'hover:bg-zinc-800'
+                                        )}
+                                        title="Toggle Code View"
+                                    >
+                                        <Code2 size={16} />
+                                    </button>
                                 </div>
                             </div>
-                        </section>
-                    </div>
-
-                    {/* Sidebar: Metrics & Tools */}
-                    <aside className="flex flex-col gap-8">
-                        <section className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-8">
-                            <div className="mb-6 flex items-center gap-3 text-zinc-400">
-                                <Gauge size={18} />
-                                <h2 className="text-[10px] font-black uppercase tracking-[0.2em]">System State</h2>
-                            </div>
-                            <div className="flex flex-col gap-6">
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-2xl font-black">{experimentalCount}</span>
-                                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Experimental Patterns</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-2xl font-black">40%</span>
-                                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Average Reuse Rate</span>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-2xl font-black">2.4s</span>
-                                    <span className="text-[10px] text-zinc-500 font-bold uppercase">Mean Time to Build</span>
-                                </div>
-                            </div>
-                        </section>
-
-                        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-zinc-900 p-8 text-zinc-700">
-                            <Construction size={40} className="mb-4 opacity-10" />
-                            <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] leading-relaxed">
-                                Reserved Space for Active Development
-                            </p>
                         </div>
-                    </aside>
-                </div>
+                    </header>
+
+                    <div className="container mx-auto max-w-7xl px-4 py-8">
+                        <div className="space-y-6">
+                            {/* Preview Area */}
+                            <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6">
+                                <div className="mb-6 flex items-center justify-between">
+                                    <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-zinc-300">
+                                        <Play size={16} />
+                                        Live Preview
+                                    </h3>
+                                    <div className="flex items-center gap-2">
+                                        <span className="rounded-full px-2 py-1 text-[9px] font-bold bg-accent/20 text-accent">
+                                            {currentScene?.root.type || 'None'}
+                                        </span>
+                                        {showAnimations && (
+                                            <span className="rounded-full px-2 py-1 text-[9px] font-bold bg-emerald-500/20 text-emerald-500">
+                                                Animated
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="min-h-48 flex items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950 p-8">
+                                    <div className="w-full">
+                                        {currentScene && (
+                                            <ComponentRenderer
+                                                node={currentScene.root}
+                                                animations={currentScene.animations}
+                                                selectedNodeId={selectedNodeId}
+                                                onSelect={selectNode}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Code Output */}
+                            {showCode && (
+                                <div className="rounded-2xl border border-zinc-900 bg-zinc-900/20 p-6">
+                                    <div className="mb-4 flex items-center justify-between">
+                                        <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-zinc-300">
+                                            <Code2 size={16} />
+                                            Generated Code
+                                        </h3>
+                                        <button
+                                            onClick={copyCode}
+                                            className="flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-300"
+                                        >
+                                            {copiedCode ? (
+                                                <>
+                                                    <Check size={12} />
+                                                    Copied
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Copy size={12} />
+                                                    Copy
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="rounded-lg bg-zinc-950 border border-zinc-800 p-4 font-mono text-sm text-zinc-300">
+                                        <pre className="whitespace-pre-wrap break-all">
+                                            {generateCode()}
+                                        </pre>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </main>
             </div>
         </div>
     )

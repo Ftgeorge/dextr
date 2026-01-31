@@ -29,7 +29,7 @@ export function ComponentPreview({ children }: ComponentPreviewProps) {
 
     return (
         <PreviewControlsContext.Provider value={ctxValue}>
-            <div className="flex min-h-[200px] w-full flex-col gap-8 rounded-xl border border-zinc-200 bg-zinc-50 p-10 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <div id="dexter-component-preview" className="flex min-h-[200px] w-full flex-col gap-8 rounded-xl border border-zinc-200 bg-zinc-50 p-10 dark:border-zinc-800 dark:bg-zinc-900/50">
                 {controls ? (
                     <div className="w-full flex items-center justify-start">{controls}</div>
                 ) : null}

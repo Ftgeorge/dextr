@@ -3,12 +3,13 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { components, ComponentStatus } from "@/lib/component-registry"
 import { ComingSoon } from "@/components/ui/coming-soon"
 import { cn } from "@/lib/utils"
-import { Search, ChevronRight, CheckCircle2, AlertCircle, Wrench } from "lucide-react"
+import { Search, ChevronRight, CheckCircle2, AlertCircle, Wrench, HelpCircle } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import Logo from "../ui/logo"
+import { useSimpleOnboarding } from "./simple-onboarding"
+import { components, ComponentStatus } from "@/lib/component-registry"
 
 const statusIcons: Record<ComponentStatus, LucideIcon> = {
     "production-ready": CheckCircle2,
@@ -20,12 +21,13 @@ interface WorkshopSidebarProps {
     className?: string
 }
 
-type Framework = "next" | "vue" | "react-native" | "flutter"
+type Framework = "react" | "react-native" | "flutter"
 
 export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedIndex, setSelectedIndex] = useState(-1)
-    const [framework, setFramework] = useState<Framework>("next")
+    const [framework, setFramework] = useState<Framework>("react")
+    const { startOnboarding } = useSimpleOnboarding()
     const searchInputRef = useRef<HTMLInputElement>(null)
     const listRef = useRef<HTMLDivElement>(null)
     const pathname = usePathname()
@@ -104,6 +106,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
 
     return (
         <aside
+            id="dexter-sidebar"
             className={cn("flex h-full flex-col bg-zinc-950 border-r border-zinc-900", className)}
             role="navigation"
             aria-label="Component sidebar"
@@ -116,28 +119,18 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                     </Link>
 
                     <div className="flex items-center justify-between">
-                        <div className="flex min-w-0 flex-1">
+                        <div id="dexter-stack-switcher" className="flex min-w-0 flex-1">
                             <div className="w-full overflow-x-auto rounded-xl border border-zinc-900 bg-zinc-900/30 p-1 [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                                 <div className="flex min-w-max items-center gap-1 whitespace-nowrap">
                                     <button
                                 type="button"
-                                onClick={() => setFramework("next")}
+                                onClick={() => setFramework("react")}
                                 className={cn(
                                     "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
-                                    framework === "next" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                    framework === "react" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
                                 )}
                             >
-                                Next
-                            </button>
-                                    <button
-                                type="button"
-                                onClick={() => setFramework("vue")}
-                                className={cn(
-                                    "shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
-                                    framework === "vue" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
-                                )}
-                            >
-                                Vue
+                                React
                             </button>
                                     <button
                                 type="button"
@@ -191,7 +184,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
 
             {/* Scrollable Component List */}
             <div ref={listRef} className="flex-1 overflow-y-auto" role="list">
-                {framework !== "next" ? (
+                {framework !== "react" ? (
                     <div className="p-4">
                         <ComingSoon
                             title="Framework support"
@@ -215,7 +208,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
 
                             {/* Component Items */}
                             <div className="py-1">
-                                {categoryComponents.map((component, idx) => {
+                                {categoryComponents.map((component) => {
                                     const globalIndex = filteredComponents.indexOf(component)
                                     const isActive = component.slug === activeSlug
                                     const isSelected = globalIndex === selectedIndex
@@ -276,8 +269,28 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
             </div>
 
             {/* Footer with Workbench Link */}
-            <div className="sticky bottom-0 border-t border-zinc-900 bg-zinc-950 p-4">
+            <div className="sticky bottom-0 border-t border-zinc-900 bg-zinc-950 p-4 space-y-2">
+                <button
+                    onClick={() => {
+                        console.log('Help button clicked, starting onboarding...')
+                        startOnboarding()
+                    }}
+                    className="flex items-center justify-between w-full rounded-lg border border-zinc-900 bg-zinc-900/30 px-4 py-3 transition-all hover:border-accent/40 hover:bg-zinc-900/50"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-md bg-zinc-800 p-1.5">
+                            <HelpCircle size={14} className="text-zinc-500" />
+                        </div>
+                        <div className="flex flex-col text-left">
+                            <span className="text-xs font-bold text-zinc-300">Help</span>
+                            <span className="text-[9px] font-medium text-zinc-600">Take a tour</span>
+                        </div>
+                    </div>
+                    <ChevronRight size={14} className="text-zinc-600" />
+                </button>
+                
                 <Link
+                    id="dexter-workbench"
                     href="/workbench"
                     className="flex items-center justify-between rounded-lg border border-zinc-900 bg-zinc-900/30 px-4 py-3 transition-all hover:border-accent/40 hover:bg-zinc-900/50"
                 >

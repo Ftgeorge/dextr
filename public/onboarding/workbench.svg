@@ -1,0 +1,56 @@
+<svg width="600" height="400" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="600" height="400" fill="#09090B"/>
+  <!-- Workbench layout -->
+  <rect x="50" y="50" width="500" height="300" rx="12" fill="#18181B" stroke="#27272A" stroke-width="2"/>
+  
+  <!-- Left sidebar - Props -->
+  <rect x="70" y="70" width="150" height="260" rx="8" fill="#27272A"/>
+  <text x="145" y="90" text-anchor="middle" fill="#A1A1AA" font-family="system-ui" font-size="12" font-weight="600">Properties</text>
+  
+  <!-- Props controls -->
+  <rect x="85" y="110" width="120" height="25" rx="4" fill="#18181B"/>
+  <text x="95" y="127" fill="#52525B" font-family="system-ui" font-size="10">Variant</text>
+  <text x="175" y="127" fill="#A1A1AA" font-family="system-ui" font-size="10">▼</text>
+  
+  <rect x="85" y="145" width="120" height="25" rx="4" fill="#18181B"/>
+  <text x="95" y="162" fill="#52525B" font-family="system-ui" font-size="10">Size</text>
+  <text x="175" y="162" fill="#A1A1AA" font-family="system-ui" font-size="10">▼</text>
+  
+  <rect x="85" y="180" width="120" height="25" rx="4" fill="#8B5CF6"/>
+  <text x="95" y="197" fill="#FFFFFF" font-family="system-ui" font-size="10">Loading</text>
+  <text x="175" y="197" fill="#FFFFFF" font-family="system-ui" font-size="10">✓</text>
+  
+  <!-- Main content area -->
+  <rect x="240" y="70" width="290" height="120" rx="8" fill="#27272A"/>
+  <text x="385" y="90" text-anchor="middle" fill="#A1A1AA" font-family="system-ui" font-size="12" font-weight="600">Live Preview</text>
+  
+  <!-- Preview of button -->
+  <rect x="320" y="120" width="130" height="40" rx="6" fill="#8B5CF6"/>
+  <text x="385" y="145" text-anchor="middle" fill="#FFFFFF" font-family="system-ui" font-size="12">Primary Button</text>
+  
+  <!-- Code output -->
+  <rect x="240" y="210" width="290" height="120" rx="8" fill="#27272A"/>
+  <text x="385" y="230" text-anchor="middle" fill="#A1A1AA" font-family="system-ui" font-size="12" font-weight="600">Generated Code</text>
+  
+  <!-- Code snippet -->
+  <rect x="255" y="245" width="260" height="70" rx="4" fill="#09090B"/>
+  <text x="265" y="265" fill="#22C55E" font-family="monospace" font-size="10">&lt;Button</text>
+  <text x="310" y="265" fill="#A1A1AA" font-family="monospace" font-size="10">variant="primary"</text>
+  <text x="265" y="280" fill="#A1A1AA" font-family="monospace" font-size="10">size="medium"</text>
+  <text x="265" y="295" fill="#A1A1AA" font-family="monospace" font-size="10">loading={true}</text>
+  <text x="265" y="310" fill="#22C55E" font-family="monospace" font-size="10">/&gt;</text>
+  
+  <!-- Copy button -->
+  <rect x="470" y="255" width="35" height="20" rx="3" fill="#8B5CF6"/>
+  <text x="487" y="268" text-anchor="middle" fill="#FFFFFF" font-family="system-ui" font-size="8">Copy</text>
+  
+  <!-- Component selector -->
+  <rect x="85" y="220" width="120" height="25" rx="4" fill="#18181B"/>
+  <text x="95" y="237" fill="#52525B" font-family="system-ui" font-size="10">Component</text>
+  <text x="175" y="237" fill="#A1A1AA" font-family="system-ui" font-size="10">▼</text>
+  
+  <!-- Component info -->
+  <text x="95" y="270" fill="#52525B" font-family="system-ui" font-size="9">Category: Buttons</text>
+  <text x="95" y="285" fill="#52525B" font-family="system-ui" font-size="9">Status: Production</text>
+  <text x="95" y="300" fill="#52525B" font-family="system-ui" font-size="9">Version: v1.2.0</text>
+</svg>

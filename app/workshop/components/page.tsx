@@ -19,7 +19,11 @@ export default function WorkshopPage() {
     // Pre-generate color pattern for current phrase (only changes when phrase changes)
     const colorPattern = useMemo(() => {
         const currentPhrase = phrases[currentPhraseIndex]
-        return currentPhrase.split('').map(() => Math.random() > 0.5)
+        return currentPhrase.split('').map((_, index) => {
+            // Use a deterministic hash based on phrase and character index
+            const hash = (currentPhraseIndex * 31 + index) % 2
+            return hash === 0
+        })
     }, [currentPhraseIndex])
 
     useEffect(() => {
@@ -36,9 +40,11 @@ export default function WorkshopPage() {
 
         if (isDeleting && charIndex === 0) {
             // Finished deleting, move to next phrase
-            setIsDeleting(false)
-            setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length)
-            const timeout = setTimeout(() => setCharIndex(0), pauseBeforeType)
+            const timeout = setTimeout(() => {
+                setIsDeleting(false)
+                setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length)
+                setCharIndex(0)
+            }, pauseBeforeType)
             return () => clearTimeout(timeout)
         }
 

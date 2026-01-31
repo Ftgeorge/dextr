@@ -20,7 +20,7 @@ export function CodeInspector({ code, highlightedCode, filename, sourcePath }: C
     }
 
     return (
-        <div className="flex flex-col overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-950 shadow-2xl">
+        <div id="dexter-code-viewer" className="flex flex-col overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-950 shadow-2xl">
             <div className="flex items-center justify-between border-b border-zinc-900 bg-zinc-900/40 px-6 py-4">
                 <div className="flex items-center gap-3">
                     <FileCode size={16} className="text-accent" />
