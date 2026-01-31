@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, JSX } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Code2, Copy, Check, Layers, 
   Plus, Trash2, Eye, Sparkles,
   ChevronRight, ChevronDown, TreePine
 } from 'lucide-react'
-import { useWorkbenchStore, useCurrentScene, useSelectedNode } from '@/lib/workbench-store'
+import { useWorkbenchStore, ComponentNode, AnimationNode } from '@/lib/workbench-store'
 import { ComponentRenderer } from './component-renderer'
 import { AnimationRuntime } from '@/lib/animation-runtime'
 import { Dropdown } from '@/components/ui/dropdown'
@@ -18,10 +18,11 @@ interface EnhancedWorkbenchProps {
 }
 
 export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
-  const currentScene = useCurrentScene()
-  const selectedNode = useSelectedNode()
+  const [copiedCode, setCopiedCode] = useState(false)
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
   
   const {
+    currentScene,
     selectedNodeId,
     showAnimations,
     showCode,
@@ -36,14 +37,13 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
     animationPresets
   } = useWorkbenchStore()
 
-  const [copiedCode, setCopiedCode] = useState(false)
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set())
+  const selectedNode = currentScene?.root.id === selectedNodeId ? currentScene.root : null
 
   // Generate code functions
-  const generateJSXCode = () => {
+  const generateJSXCode = useCallback(() => {
     if (!currentScene) return ''
     
-    const renderNode = (node: Record<string, unknown>, depth = 0): string => {
+    const renderNode = (node: ComponentNode, depth = 0): string => {
       const indent = '  '.repeat(depth)
       const props = Object.entries(node.props || {})
         .map(([key, value]) => {
@@ -62,7 +62,7 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
       const closingTag = `</${node.type}>`
 
       if (node.children && Array.isArray(node.children) && node.children.length > 0) {
-        const childrenCode = node.children.map((child: Record<string, unknown>) => renderNode(child, depth + 1)).join('\n')
+        const childrenCode = node.children.map((child: ComponentNode) => renderNode(child, depth + 1)).join('\n')
         return `${indent}${openingTag}\n${childrenCode}\n${indent}${closingTag}`
       } else {
         return `${indent}${openingTag}${closingTag}`
@@ -70,38 +70,7 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
     }
 
     return `// Generated JSX\n${renderNode(currentScene.root)}`
-  }
-
-  const generateTailwindCode = () => {
-    if (!currentScene) return ''
-    
-    // Generate Tailwind classes based on component props
-    const extractTailwindClasses = (node: Record<string, unknown>): string[] => {
-      const classes: string[] = []
-      
-      // Extract classes from props
-      Object.values(node.props || {}).forEach(value => {
-        if (typeof value === 'string' && value.includes('className=')) {
-          const match = value.match(/className="([^"]+)"/)
-          if (match) classes.push(match[1])
-        }
-      })
-
-      // Recursively extract from children
-      if (node.children && Array.isArray(node.children)) {
-        node.children.forEach((child: Record<string, unknown>) => {
-          classes.push(...extractTailwindClasses(child))
-        })
-      }
-
-      return classes
-    }
-
-    const allClasses = extractTailwindClasses(currentScene.root)
-    const uniqueClasses = [...new Set(allClasses)]
-
-    return `/* Tailwind Classes */\n${uniqueClasses.join('\n')}`
-  }
+  }, [currentScene])
 
   const generateAnimationCode = () => {
     if (!currentScene) return ''
@@ -115,6 +84,35 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
   const generateCode = useCallback(() => {
     if (!currentScene) return ''
 
+    const generateTailwindCode = () => {
+      // Generate Tailwind classes based on component props
+      const extractTailwindClasses = (node: ComponentNode): string[] => {
+        const classes: string[] = []
+        
+        // Extract classes from props
+        Object.values(node.props || {}).forEach(value => {
+          if (typeof value === 'string' && value.includes('className=')) {
+            const match = value.match(/className="([^"]+)"/)
+            if (match) classes.push(match[1])
+          }
+        })
+
+        // Recursively extract from children
+        if (node.children && Array.isArray(node.children)) {
+          node.children.forEach((child: ComponentNode) => {
+            classes.push(...extractTailwindClasses(child))
+          })
+        }
+
+        return classes
+      }
+
+      const allClasses = extractTailwindClasses(currentScene.root)
+      const uniqueClasses = [...new Set(allClasses)]
+
+      return `/* Tailwind Classes */\n${uniqueClasses.join('\n')}`
+    }
+
     switch (codeView) {
       case 'jsx':
         return generateJSXCode()
@@ -127,7 +125,7 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
       default:
         return generateJSXCode()
     }
-  }, [currentScene, codeView, generateJSXCode, generateTailwindCode, generateAnimationCode])
+  }, [currentScene, codeView, generateJSXCode, generateAnimationCode])
 
   // Copy code to clipboard
   const copyCode = async () => {
@@ -151,13 +149,14 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
   }, [])
 
   // Render component tree
-  const renderComponentTree = (node: Record<string, unknown>, depth = 0): JSX.Element => {
-    const isExpanded = expandedNodes.has(node.id)
-    const hasChildren = node.children && node.children.length > 0
-    const isSelected = selectedNodeId === node.id
+  const renderComponentTree = (node: ComponentNode, depth = 0): JSX.Element => {
+    const nodeId = node.id as string
+    const isExpanded = expandedNodes.has(nodeId)
+    const hasChildren = node.children && Array.isArray(node.children) && node.children.length > 0
+    const isSelected = selectedNodeId === nodeId
 
     return (
-      <div key={node.id} className="select-none">
+      <div key={nodeId} className="select-none">
         <div
           className={cn(
             'flex items-center gap-2 px-2 py-1 rounded cursor-pointer transition-colors',
@@ -165,13 +164,13 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
             isSelected && 'bg-accent/20 text-accent'
           )}
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
-          onClick={() => selectNode(node.id)}
+          onClick={() => selectNode(nodeId)}
         >
           {hasChildren && (
             <button
               onClick={(e) => {
                 e.stopPropagation()
-                toggleNodeExpansion(node.id)
+                toggleNodeExpansion(nodeId)
               }}
               className="p-0.5 hover:bg-zinc-700 rounded"
             >
@@ -200,9 +199,9 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
           </div>
         </div>
         
-        {hasChildren && isExpanded && (
+        {hasChildren && isExpanded && Array.isArray(node.children) && (
           <div className="ml-2">
-            {node.children.map((child: any) => renderComponentTree(child, depth + 1))}
+            {node.children.map((child: ComponentNode) => renderComponentTree(child, depth + 1))}
           </div>
         )}
       </div>
@@ -279,11 +278,11 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-zinc-900">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-semibold">{currentScene.name}</h2>
+          <h2 className="text-lg font-semibold">Enhanced Workbench</h2>
           <div className="flex items-center gap-1 text-xs text-zinc-500">
-            <span>v{currentScene.metadata.version}</span>
+            <span>v{currentScene?.metadata?.version || '1.0'}</span>
             <span>•</span>
-            <span>{new Date(currentScene.metadata.updatedAt).toLocaleDateString()}</span>
+            <span>{currentScene?.metadata?.updatedAt ? new Date(currentScene.metadata.updatedAt).toLocaleDateString() : 'Just now'}</span>
           </div>
         </div>
 
@@ -384,14 +383,13 @@ export function EnhancedWorkbench({ className }: EnhancedWorkbenchProps) {
                       
                       <Dropdown
                         value={codeView}
-                        onValueChange={(value: any) => setCodeView(value)}
+                        onValueChange={(value: string) => setCodeView(value as 'jsx' | 'tailwind' | 'animations' | 'all')}
                         options={[
                           { value: 'jsx', label: 'JSX' },
                           { value: 'tailwind', label: 'Tailwind' },
                           { value: 'animations', label: 'Animations' },
                           { value: 'all', label: 'All' }
                         ]}
-                        size="sm"
                       />
                     </div>
 

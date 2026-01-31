@@ -20,23 +20,44 @@ import {
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
+interface PreviewProps {
+    variant: string
+    size: string
+    isLoading: boolean
+    fullWidth: boolean
+    children: string
+    hasIcon: boolean
+    iconPosition: string
+    iconPack: string
+    iconName: string
+    leftIcon: null | string
+    rightIcon: null | string
+    [key: string]: string | boolean | null
+}
+
+interface ComponentProp {
+    name: string
+    type: string
+    description: string
+}
+
 // Preview Controls Component
 function ComponentPreviewControls({ 
     componentEntry, 
     previewProps, 
     setPreviewProps 
 }: { 
-    componentEntry: any
-    previewProps: Record<string, any>
-    setPreviewProps: (props: Record<string, any>) => void 
+    componentEntry: typeof components[number]
+    previewProps: PreviewProps
+    setPreviewProps: (props: PreviewProps | ((prev: PreviewProps) => PreviewProps)) => void 
 }) {
-    const handlePropChange = (propName: string, value: any) => {
-        setPreviewProps(prev => ({ ...prev, [propName]: value }))
+    const handlePropChange = (propName: string, value: string | boolean) => {
+        setPreviewProps((prev: PreviewProps) => ({ ...prev, [propName]: value }))
     }
 
     return (
         <div className="flex flex-wrap gap-3 p-4 border-b border-zinc-800">
-            {componentEntry.usage?.props?.map((prop: any) => (
+            {componentEntry.usage?.props?.map((prop: ComponentProp) => (
                 <div key={prop.name} className="flex items-center gap-2">
                     <span className="text-xs font-medium text-zinc-400">{prop.name}:</span>
                     
@@ -122,7 +143,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
     const componentEntry = components.find(c => c.slug === slug)
     
     // Preview controls state
-    const [previewProps, setPreviewProps] = useState<Record<string, any>>({
+    const [previewProps, setPreviewProps] = useState<PreviewProps>({
         variant: "primary",
         size: "md",
         isLoading: false,
