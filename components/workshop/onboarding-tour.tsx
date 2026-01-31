@@ -122,7 +122,7 @@ export function OnboardingTour({ isOpen, onClose, onComplete, tourType = "main" 
                 setTargetRect(null)
             }
         }
-        
+
         const handleScroll = handleResize
 
         window.addEventListener("resize", handleResize)
@@ -152,12 +152,12 @@ export function OnboardingTour({ isOpen, onClose, onComplete, tourType = "main" 
                 if (target) {
                     console.log('Found target, scrolling to it')
                     target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
-                    
+
                     // If this is the code viewer step, switch to Code tab
                     if (step.id === "code") {
                         console.log('Switching to Code tab...')
                         setTimeout(() => {
-                            const codeTab = Array.from(document.querySelectorAll('button')).find(btn => 
+                            const codeTab = Array.from(document.querySelectorAll('button')).find(btn =>
                                 btn.textContent?.trim() === 'Code'
                             ) as HTMLButtonElement
                             console.log('Code tab found:', codeTab)
@@ -183,11 +183,11 @@ export function OnboardingTour({ isOpen, onClose, onComplete, tourType = "main" 
             const target = document.querySelector(step.target)
             if (target) {
                 target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" })
-                
+
                 // If this is the code viewer step, switch to Code tab
                 if (step.id === "code") {
                     setTimeout(() => {
-                        const codeTab = Array.from(document.querySelectorAll('button')).find(btn => 
+                        const codeTab = Array.from(document.querySelectorAll('button')).find(btn =>
                             btn.textContent?.trim() === 'Code'
                         ) as HTMLButtonElement
                         if (codeTab) {
@@ -259,7 +259,7 @@ export function OnboardingTour({ isOpen, onClose, onComplete, tourType = "main" 
         <div className="fixed inset-0 z-50 pointer-events-none">
             {/* Backdrop with rectangular spotlight mask */}
             {targetRect ? (
-                <div 
+                <div
                     className="absolute inset-0 bg-zinc-950/70 backdrop-blur-md pointer-events-auto"
                     style={{
                         mask: `linear-gradient(to bottom, black 0%, black ${targetRect.top - 8}px, transparent ${targetRect.top - 8}px, transparent ${targetRect.bottom + 8}px, black ${targetRect.bottom + 8}px, black 100%)`,
@@ -275,7 +275,7 @@ export function OnboardingTour({ isOpen, onClose, onComplete, tourType = "main" 
             {targetRect && (
                 <div
                     ref={spotlightRef}
-                    className="absolute pointer-events-none"
+                    className="absolute pointer-events-none transition-all duration-500 ease-out"
                     style={{
                         left: targetRect.left - 8,
                         top: targetRect.top - 8,
@@ -283,9 +283,9 @@ export function OnboardingTour({ isOpen, onClose, onComplete, tourType = "main" 
                         height: targetRect.height + 16,
                     }}
                 >
-                    <div className="absolute inset-0 border-2 border-accent rounded-lg" />
+                    <div className="absolute inset-0 border border-emerald-500/50 rounded-lg shadow-[0_0_30px_rgba(16,185,129,0.2)]" />
                     {/* Inner glow effect */}
-                    <div className="absolute inset-0 rounded-lg bg-accent/10" />
+                    <div className="absolute inset-0 rounded-lg bg-emerald-500/10" />
                 </div>
             )}
 
@@ -293,8 +293,8 @@ export function OnboardingTour({ isOpen, onClose, onComplete, tourType = "main" 
             <div
                 ref={tooltipRef}
                 className={cn(
-                    "absolute pointer-events-auto",
-                    "max-w-sm rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl p-6",
+                    "absolute pointer-events-auto transition-all duration-500 ease-out",
+                    "max-w-sm rounded-xl border border-zinc-800 bg-zinc-950/95 backdrop-blur-xl p-0 shadow-2xl",
                     step.position === "center" && "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
                     step.position === "top" && targetRect && `bottom-${window.innerHeight - targetRect.top + 16} left-1/2 -translate-x-1/2`,
                     step.position === "bottom" && targetRect && `top-${targetRect.bottom + 16} left-1/2 -translate-x-1/2`,
@@ -303,74 +303,86 @@ export function OnboardingTour({ isOpen, onClose, onComplete, tourType = "main" 
                 )}
                 style={
                     step.position === "center" ? {} :
-                    step.position === "top" && targetRect ? { bottom: `${window.innerHeight - targetRect.top + 16}px`, left: "50%", transform: "translateX(-50%)" } :
-                    step.position === "bottom" && targetRect ? { top: `${targetRect.bottom + 16}px`, left: "50%", transform: "translateX(-50%)" } :
-                    step.position === "left" && targetRect ? { right: `${window.innerWidth - targetRect.left + 16}px`, top: "50%", transform: "translateY(-50%)" } :
-                    step.position === "right" && targetRect ? { left: `${targetRect.right + 16}px`, top: "50%", transform: "translateY(-50%)" } :
-                    {}
+                        step.position === "top" && targetRect ? { bottom: `${window.innerHeight - targetRect.top + 16}px`, left: "50%", transform: "translateX(-50%)" } :
+                            step.position === "bottom" && targetRect ? { top: `${targetRect.bottom + 16}px`, left: "50%", transform: "translateX(-50%)" } :
+                                step.position === "left" && targetRect ? { right: `${window.innerWidth - targetRect.left + 16}px`, top: "50%", transform: "translateY(-50%)" } :
+                                    step.position === "right" && targetRect ? { left: `${targetRect.right + 16}px`, top: "50%", transform: "translateY(-50%)" } :
+                                        {}
                 }
             >
-                {/* Close button */}
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 rounded-lg border border-zinc-800 bg-zinc-900/20 p-2 text-zinc-500 transition-colors hover:bg-zinc-900/40 hover:text-zinc-200"
-                    aria-label="Close tour"
-                >
-                    <X size={16} />
-                </button>
-
-                {/* Content */}
-                <div className="mb-6">
-                    {step.title && (
-                        <h3 className="mb-3 text-lg font-black tracking-tight text-zinc-100">
-                            {step.title}
-                        </h3>
-                    )}
-                    <p className="text-sm leading-relaxed text-zinc-300">
-                        {step.content}
-                    </p>
-                </div>
-
-                {/* Progress */}
-                <div className="mb-4 flex items-center gap-2">
-                    {tourSteps.map((_, index) => (
-                        <div
-                            key={index}
-                            className={cn(
-                                "h-1 flex-1 rounded-full",
-                                index === currentStep ? "bg-accent" : "bg-zinc-800"
-                            )}
-                        />
-                    ))}
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center justify-between gap-4">
+                <div className="relative p-6 pt-12">
+                    {/* Close button */}
                     <button
-                        onClick={handleSkip}
-                        className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-zinc-300 transition-colors"
+                        onClick={onClose}
+                        className="absolute top-4 right-4 rounded-md p-1.5 text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-zinc-200"
+                        aria-label="Close tour"
                     >
-                        Skip tour
+                        <X size={14} />
                     </button>
-                    
-                    <div className="flex items-center gap-2">
-                        {!isFirstStep && (
-                            <button
-                                onClick={handlePrevious}
-                                className="flex items-center gap-2 rounded-lg border border-zinc-800 bg-zinc-900/20 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition-colors hover:bg-zinc-900/40"
-                            >
-                                <ArrowLeft size={14} />
-                                Back
-                            </button>
+
+                    {/* Step Indicator */}
+                    <div className="absolute top-6 left-6 flex items-center gap-1.5">
+                        <span className="text-[10px] font-bold text-zinc-500">
+                            STEP {currentStep + 1}
+                        </span>
+                        <span className="text-[10px] font-medium text-zinc-700">/</span>
+                        <span className="text-[10px] font-medium text-zinc-700">
+                            {steps.length}
+                        </span>
+                    </div>
+
+                    {/* Content */}
+                    <div className="mb-6 mt-2">
+                        {step.title && (
+                            <h3 className="mb-2 text-base font-bold text-zinc-100">
+                                {step.title}
+                            </h3>
                         )}
-                        
+                        <p className="text-sm font-medium leading-relaxed text-zinc-400">
+                            {step.content}
+                        </p>
+                    </div>
+
+                    {/* Progress */}
+                    <div className="mb-6 flex gap-1">
+                        {steps.map((_, index) => (
+                            <div
+                                key={index}
+                                className={cn(
+                                    "h-0.5 flex-1 rounded-full transition-all duration-300",
+                                    index <= currentStep ? "bg-emerald-500" : "bg-zinc-800"
+                                )}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between gap-4">
                         <button
-                            onClick={handleNext}
-                            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-[10px] font-black uppercase tracking-widest text-accent-foreground transition-all hover:opacity-90"
+                            onClick={handleSkip}
+                            className="text-[11px] font-bold text-zinc-600 hover:text-zinc-400 transition-colors"
                         >
-                            {isLastStep ? "Finish" : "Next"}
-                            {!isLastStep && <ArrowRight size={14} />}
+                            Skip Tour
                         </button>
+
+                        <div className="flex items-center gap-2">
+                            {!isFirstStep && (
+                                <button
+                                    onClick={handlePrevious}
+                                    className="flex items-center gap-2 rounded-md border border-zinc-800 bg-zinc-900/50 px-3 py-1.5 text-[11px] font-bold text-zinc-400 transition-colors hover:bg-zinc-900 hover:text-zinc-200"
+                                >
+                                    Back
+                                </button>
+                            )}
+
+                            <button
+                                onClick={handleNext}
+                                className="flex items-center gap-2 rounded-md bg-emerald-500 px-4 py-1.5 text-[11px] font-bold text-white shadow-lg shadow-emerald-500/10 transition-all hover:bg-emerald-600 hover:shadow-emerald-500/20 active:scale-95"
+                            >
+                                {isLastStep ? "Finish" : "Next"}
+                                {!isLastStep && <ArrowRight size={12} />}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

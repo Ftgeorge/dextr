@@ -26,13 +26,14 @@ export interface ComponentEntry {
     description: string
     component: (props?: Record<string, unknown>) => ReactNode
     sourcePath: string
+    sourceCode?: string
     status: ComponentStatus
     tags: string[]
     stacks: ComponentStacks
     usage?: {
         whenToUse: string[]
         whenNotToUse: string[]
-        props: { name: string; type: string; description: string }[]
+        props: { name: string; type: string; description: string; defaultValue?: string | boolean | number | null }[]
     }
     notes?: {
         decisions: string[]
@@ -69,6 +70,118 @@ export const components: ComponentEntry[] = [
         description: "Single button component with variants (primary, secondary, outline, ghost, destructive, success, warning).",
         component: (props) => <ButtonWorkbench {...(props as Record<string, unknown>)} />,
         sourcePath: "components/ui/buttons/button.tsx",
+        sourceCode: `import { ButtonHTMLAttributes, forwardRef } from "react"
+import { cn } from "@/lib/utils"
+
+type ButtonVariant = 
+  | "primary" 
+  | "secondary" 
+  | "outline" 
+  | "ghost"
+  | "destructive"
+  | "success"
+  | "warning"
+
+type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl"
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant
+  size?: ButtonSize
+  isLoading?: boolean
+  leftIcon?: React.ReactNode
+  rightIcon?: React.ReactNode
+  fullWidth?: boolean
+}
+
+const variantStyles: Record<ButtonVariant, string> = {
+  primary: 
+    "bg-accent text-accent-foreground hover:opacity-90 active:opacity-80 shadow-sm",
+  secondary: 
+    "bg-zinc-900 text-zinc-100 hover:bg-zinc-800 active:bg-zinc-700 shadow-sm",
+  outline: 
+    "border border-zinc-800 bg-transparent text-zinc-200 hover:bg-zinc-900/40 active:bg-zinc-900/60",
+  ghost: 
+    "bg-transparent text-zinc-200 hover:bg-zinc-900/40 active:bg-zinc-900/60",
+  destructive: 
+    "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800 shadow-sm",
+  success: 
+    "bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 shadow-sm",
+  warning: 
+    "bg-amber-500 text-zinc-950 hover:bg-amber-600 active:bg-amber-700 shadow-sm",
+}
+
+const sizeStyles: Record<ButtonSize, string> = {
+  xs: "px-2.5 py-1.5 text-xs rounded",
+  sm: "px-3 py-2 text-sm rounded-md",
+  md: "px-4 py-2.5 text-base rounded-md",
+  lg: "px-6 py-3 text-lg rounded-lg",
+  xl: "px-8 py-4 text-xl rounded-lg",
+}
+
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ 
+    className, 
+    variant = "primary", 
+    size = "md", 
+    isLoading = false, 
+    leftIcon, 
+    rightIcon, 
+    fullWidth = false, 
+    disabled, 
+    children, 
+    ...props 
+  }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          // Base styles
+          "inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-2 focus:ring-offset-zinc-950 disabled:cursor-not-allowed disabled:opacity-60",
+          // Variant styles
+          variantStyles[variant],
+          // Size styles
+          sizeStyles[size],
+          // Full width
+          fullWidth && "w-full",
+          // Custom className
+          className
+        )}
+        disabled={disabled || isLoading}
+        {...props}
+      >
+        {isLoading && (
+          <svg 
+            className="animate-spin -ml-1 h-4 w-4" 
+            xmlns="http://www.w3.org/2000/svg" 
+            fill="none" 
+            viewBox="0 0 24 24"
+          >
+            <circle 
+              className="opacity-25" 
+              cx="12" 
+              cy="12" 
+              r="10" 
+              stroke="currentColor" 
+              strokeWidth="4"
+            />
+            <path 
+              className="opacity-75" 
+              fill="currentColor" 
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+        )}
+        {!isLoading && leftIcon && <span className="shrink-0">{leftIcon}</span>}
+        {children}
+        {!isLoading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
+      </button>
+    )
+  }
+)
+
+Button.displayName = "Button"
+
+export type { ButtonVariant, ButtonSize }`,
         status: "production-ready",
         tags: ["interactive", "button", "variants"],
         stacks: {
@@ -98,17 +211,17 @@ export const components: ComponentEntry[] = [
                 "When the only state is loading (consider disabling the whole UI section instead)."
             ],
             props: [
-                { name: "variant", type: "'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'success' | 'warning' | 'icon'", description: "Visual style variant." },
-                { name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", description: "Button size." },
-                { name: "isLoading", type: "boolean", description: "Shows a spinner and disables the button." },
-                { name: "fullWidth", type: "boolean", description: "Expands button to full container width." },
-                { name: "children", type: "ReactNode", description: "Label content for the button." },
-                { name: "hasIcon", type: "boolean", description: "Whether to show an icon with the button." },
-                { name: "iconPosition", type: "'left' | 'right'", description: "Position of the icon relative to text." },
-                { name: "iconPack", type: "'lucide' | 'fontawesome' | 'heroicons' | 'feather'", description: "Icon pack to choose from." },
-                { name: "iconName", type: "string", description: "Name of the icon from selected pack." },
-                { name: "leftIcon", type: "ReactNode", description: "Left icon component." },
-                { name: "rightIcon", type: "ReactNode", description: "Right icon component." }
+                { name: "variant", type: "'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'success' | 'warning' | 'icon'", description: "Visual style variant.", defaultValue: "primary" },
+                { name: "size", type: "'xs' | 'sm' | 'md' | 'lg' | 'xl'", description: "Button size.", defaultValue: "md" },
+                { name: "isLoading", type: "boolean", description: "Shows a spinner and disables the button.", defaultValue: false },
+                { name: "fullWidth", type: "boolean", description: "Expands button to full container width.", defaultValue: false },
+                { name: "children", type: "ReactNode", description: "Label content for the button.", defaultValue: "Button" },
+                { name: "hasIcon", type: "boolean", description: "Whether to show an icon with the button.", defaultValue: false },
+                { name: "iconPosition", type: "'left' | 'right'", description: "Position of the icon relative to text.", defaultValue: "left" },
+                { name: "iconPack", type: "'lucide' | 'fontawesome' | 'heroicons' | 'feather'", description: "Icon pack to choose from.", defaultValue: "lucide" },
+                { name: "iconName", type: "string", description: "Name of the icon from selected pack.", defaultValue: "none" },
+                { name: "leftIcon", type: "ReactNode", description: "Left icon component.", defaultValue: null },
+                { name: "rightIcon", type: "ReactNode", description: "Right icon component.", defaultValue: null }
             ]
         },
         notes: {
@@ -140,6 +253,19 @@ export const components: ComponentEntry[] = [
         description: "A versatile container with subtle border and zinc background.",
         component: BasicCardWorkbench,
         sourcePath: "components/ui/cards/basic-card.tsx",
+        sourceCode: `export function BasicCard() {
+    return (
+        <div className="w-full max-w-xs overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="aspect-video bg-zinc-100 dark:bg-zinc-900" />
+            <div className="p-4">
+                <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Card Title</h4>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    This is a simple card component used for displaying content in a grid.
+                </p>
+            </div>
+        </div>
+    )
+}`,
         status: "production-ready",
         tags: ["layout", "container", "card"],
         stacks: {

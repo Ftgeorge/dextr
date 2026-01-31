@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import {  components } from "@/lib/component-registry"
+import { highlightCode } from "@/app/actions/highlight"
+import { components } from "@/lib/component-registry"
 import { ComponentPreview } from "@/components/workshop/component-preview"
 import { CodeInspector } from "@/components/workshop/code-inspector"
 import { Dropdown } from "@/components/ui/dropdown"
@@ -16,100 +17,74 @@ import {
     CheckCircle2,
     AlertCircle,
     Wrench,
-    Repeat
+    Repeat,
+    Copy,
+    Check
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
-interface PreviewProps {
-    variant: string
-    size: string
-    isLoading: boolean
-    fullWidth: boolean
-    children: string
-    hasIcon: boolean
-    iconPosition: string
-    iconPack: string
-    iconName: string
-    leftIcon: null | string
-    rightIcon: null | string
-    [key: string]: string | boolean | null
-}
-
-interface ComponentProp {
-    name: string
-    type: string
-    description: string
-}
-
-// Preview Controls Component
-function ComponentPreviewControls({ 
-    componentEntry, 
-    previewProps, 
-    setPreviewProps 
-}: { 
+// Simplified Preview Controls Component
+function ComponentPreviewControls({
+    componentEntry,
+    previewProps,
+    setPreviewProps
+}: {
     componentEntry: typeof components[number]
-    previewProps: PreviewProps
-    setPreviewProps: (props: PreviewProps | ((prev: PreviewProps) => PreviewProps)) => void 
+    previewProps: Record<string, string | boolean>
+    setPreviewProps: (props: Record<string, string | boolean> | ((prev: Record<string, string | boolean>) => Record<string, string | boolean>)) => void
 }) {
     const handlePropChange = (propName: string, value: string | boolean) => {
-        setPreviewProps((prev: PreviewProps) => ({ ...prev, [propName]: value }))
+        setPreviewProps((prev: Record<string, string | boolean>) => ({ ...prev, [propName]: value }))
     }
 
+    const { usage } = componentEntry
+
+    if (!usage) return null
+
     return (
-        <div className="flex flex-wrap gap-3 p-4 border-b border-zinc-800">
-            {componentEntry.usage?.props?.map((prop: ComponentProp) => (
-                <div key={prop.name} className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-zinc-400">{prop.name}:</span>
-                    
-                    {prop.type.includes("boolean") ? (
-                        <Dropdown
-                            value={previewProps[prop.name] ? "true" : "false"}
-                            onValueChange={(value) => handlePropChange(prop.name, value === "true")}
-                            options={[
-                                { value: "true", label: "True" },
-                                { value: "false", label: "False" },
-                            ]}
-                            className="w-20"
-                        />
-                    ) : prop.name === "variant" ? (
-                        <Dropdown
-                            value={previewProps[prop.name] || "primary"}
-                            onValueChange={(value) => handlePropChange(prop.name, value)}
-                            options={[
-                                { value: "primary", label: "Primary" },
-                                { value: "secondary", label: "Secondary" },
-                                { value: "outline", label: "Outline" },
-                                { value: "ghost", label: "Ghost" },
-                                { value: "destructive", label: "Destructive" },
-                                { value: "success", label: "Success" },
-                                { value: "warning", label: "Warning" },
-                                { value: "icon", label: "Icon" },
-                            ]}
-                            className="w-32"
-                        />
-                    ) : prop.name === "size" ? (
-                        <Dropdown
-                            value={previewProps[prop.name] || "md"}
-                            onValueChange={(value) => handlePropChange(prop.name, value)}
-                            options={[
-                                { value: "xs", label: "XS" },
-                                { value: "sm", label: "SM" },
-                                { value: "md", label: "MD" },
-                                { value: "lg", label: "LG" },
-                                { value: "xl", label: "XL" },
-                            ]}
-                            className="w-24"
-                        />
-                    ) : prop.name === "children" ? (
-                        <input
-                            type="text"
-                            value={previewProps[prop.name] || ""}
-                            onChange={(e) => handlePropChange(prop.name, e.target.value)}
-                            className="w-24 rounded border border-zinc-700 bg-zinc-800 px-2 py-1 text-xs text-zinc-300"
-                        />
-                    ) : null}
-                </div>
-            ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {usage.props.map((prop) => {
+                // Determine control type based on prop definition
+                const isBoolean = prop.type.includes("boolean")
+                const isUnion = prop.type.includes("|")
+                const options = isUnion ? prop.type.split("|").map(s => s.trim().replace(/'/g, "")) : []
+
+                // Filter out complex types that we can't easily control with a simple input
+                if (prop.type.includes("ReactNode") && prop.name !== "children") return null
+                if (prop.name === "iconName" || prop.name === "iconPack") return null // Specialized controls could be added later
+
+                return (
+                    <div key={prop.name} className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{prop.name}</span>
+
+                        {isBoolean ? (
+                            <Dropdown
+                                value={previewProps[prop.name] ? "true" : "false"}
+                                onValueChange={(value) => handlePropChange(prop.name, value === "true")}
+                                options={[
+                                    { value: "true", label: "True" },
+                                    { value: "false", label: "False" },
+                                ]}
+                                className="w-full"
+                            />
+                        ) : isUnion ? (
+                            <Dropdown
+                                value={String(previewProps[prop.name])}
+                                onValueChange={(value) => handlePropChange(prop.name, value)}
+                                options={options.map(opt => ({ value: opt, label: opt.charAt(0).toUpperCase() + opt.slice(1) }))}
+                                className="w-full"
+                            />
+                        ) : (
+                            <input
+                                type="text"
+                                value={String(previewProps[prop.name] || "")}
+                                onChange={(e) => handlePropChange(prop.name, e.target.value)}
+                                className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs font-medium text-zinc-200 outline-none transition-all focus:border-accent/40 focus:ring-1 focus:ring-accent/40"
+                            />
+                        )}
+                    </div>
+                )
+            })}
         </div>
     )
 }
@@ -141,28 +116,72 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
     const [activeTab, setActiveTab] = useState<Tab>("Preview")
     const [framework, setFramework] = useState("next.js")
     const componentEntry = components.find(c => c.slug === slug)
-    
-    // Preview controls state
-    const [previewProps, setPreviewProps] = useState<PreviewProps>({
-        variant: "primary",
-        size: "md",
-        isLoading: false,
-        fullWidth: false,
-        children: "Button",
-        hasIcon: false,
-        iconPosition: "left",
-        iconPack: "lucide",
-        iconName: "none",
-        leftIcon: null,
-        rightIcon: null
-    })
+
+    // Dynamic Preview Controls State
+    const [previewProps, setPreviewProps] = useState<Record<string, string | boolean>>({})
+    const [isInitialized, setIsInitialized] = useState(false)
+
+    useEffect(() => {
+        if (componentEntry?.usage?.props) {
+            const initialProps = componentEntry.usage.props.reduce((acc, prop) => {
+                acc[prop.name] =
+                    typeof prop.defaultValue === "number"
+                        ? String(prop.defaultValue)
+                        : prop.defaultValue ?? (prop.type.includes("boolean") ? false : "")
+                return acc
+            }, {} as Record<string, string | boolean>)
+            setPreviewProps(initialProps)
+            setIsInitialized(true)
+        }
+    }, [componentEntry])
+
+    const [usageHighlightedCode, setUsageHighlightedCode] = useState("")
+    const [copied, setCopied] = useState(false)
+    const [isHighlighting, setIsHighlighting] = useState(true)
+
+    const generateUsageCode = () => {
+        if (!componentEntry || !componentEntry.usage) return ""
+
+        const props = Object.entries(previewProps)
+            .filter(([key, value]) => {
+                const propDef = componentEntry.usage?.props.find(p => p.name === key)
+                // Filter out null/undefined, empty strings, and values that match the default
+                if (value === undefined || value === null || value === "") return false
+                if (key === "children") return false // Handle children separately
+                if (propDef && value === propDef.defaultValue) return false
+                return true
+            })
+            .map(([key, value]) => typeof value === "boolean" ? key : `${key}="${value}"`)
+            .join(" ")
+
+        return `<${componentEntry.name}${props ? " " + props : ""}>
+    ${previewProps.children}
+</${componentEntry.name}>`
+    }
+
+    useEffect(() => {
+        const highlight = async () => {
+            const code = generateUsageCode()
+            setIsHighlighting(true)
+            try {
+                const html = await highlightCode(code, 'tsx', 'github-dark-dimmed')
+                setUsageHighlightedCode(html)
+            } catch (e) {
+                console.error("Highlighting failed", e)
+                // Fallback to basic sanitization or just raw code wrapped if shiki fails
+            } finally {
+                setIsHighlighting(false)
+            }
+        }
+        highlight()
+    }, [previewProps])
 
     if (!componentEntry) return null
 
     const { component: Component, status, tags, reuseCount, updatedAt, sourcePath } = componentEntry
 
     const tabs: Tab[] = ["Preview", "Code", "Usage", "Notes", "Changelog"]
-    
+
     const frameworkOptions = [
         { value: "next.js", label: "Next.js" },
         { value: "react.js", label: "React.js" },
@@ -172,6 +191,8 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
     ]
 
     const StatusIcon = statusIcons[status] || AlertCircle
+
+    if (!isInitialized) return null // or a skeletal loader
 
     return (
         <div className="flex flex-col gap-10">
@@ -237,7 +258,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
             {/* Tabs Layout */}
             <div className="flex flex-col gap-8">
                 <div className="flex items-center justify-between gap-4">
-                    <div className="flex flex-wrap gap-2 rounded-md bg-zinc-900/40 p-1.5 border border-zinc-900 w-fit">
+                    <div className="flex flex-wrap gap-2 rounded-md bg-zinc-900/40 p-1 border border-zinc-900 w-fit">
                         {tabs.map((tab) => {
                             const Icon = tabIcons[tab]
                             return (
@@ -245,7 +266,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
                                     className={cn(
-                                        "relative flex items-center gap-2.5 rounded-md px-5 py-2 text-xs font-bold uppercase tracking-widest transition-all",
+                                        "relative flex items-center gap-2.5 rounded-md px-5 py-2.5 text-xs font-bold uppercase tracking-widest transition-all",
                                         activeTab === tab
                                             ? "bg-zinc-800 text-accent shadow-lg"
                                             : "text-zinc-500 hover:text-zinc-300"
@@ -257,7 +278,7 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                             )
                         })}
                     </div>
-                    
+
                     <div className="flex items-center gap-3">
                         <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Framework:</span>
                         <Dropdown
@@ -280,27 +301,95 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                             transition={{ duration: 0.2, ease: "easeOut" }}
                         >
                             {activeTab === "Preview" && (
-                                <ComponentPreview>
-                                    <ComponentPreviewControls 
-                                        componentEntry={componentEntry}
-                                        previewProps={previewProps}
-                                        setPreviewProps={setPreviewProps}
-                                    />
-                                    <Component {...previewProps} />
-                                </ComponentPreview>
+                                <div className="flex flex-col gap-6">
+                                    <ComponentPreview>
+                                        <Component {...previewProps} />
+                                    </ComponentPreview>
+
+                                    <div className="rounded-xl border border-zinc-900 bg-zinc-900/20 p-5">
+                                        <div className="flex items-center gap-2 pb-2 mb-4 border-b border-zinc-900/50">
+                                            <Wrench size={14} className="text-zinc-500" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                                                Configuration
+                                            </span>
+                                        </div>
+                                        <ComponentPreviewControls
+                                            componentEntry={componentEntry}
+                                            previewProps={previewProps}
+                                            setPreviewProps={setPreviewProps}
+                                        />
+                                    </div>
+                                </div>
                             )}
 
                             {activeTab === "Code" && (
-                                <CodeInspector
-                                    code={sourceCode}
-                                    highlightedCode={highlightedCode}
-                                    filename={basename}
-                                    sourcePath={sourcePath}
-                                />
+                                <div className="grid gap-8">
+
+
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Implementation</h3>
+                                        </div>
+                                        <CodeInspector
+                                            code={sourceCode}
+                                            highlightedCode={highlightedCode}
+                                            filename={basename}
+                                            sourcePath={sourcePath}
+                                        />
+                                    </div>
+                                </div>
                             )}
 
                             {activeTab === "Usage" && (
                                 <div className="grid gap-8">
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">Usage</h3>
+                                        </div>
+                                        <div className="rounded-md border border-zinc-900 bg-zinc-950 shadow-2xl relative group overflow-hidden">
+                                            <div className="flex items-center justify-between border-b border-zinc-900 bg-zinc-900/40 px-4 py-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="h-2 w-2 rounded-full bg-red-500/20" />
+                                                    <div className="h-2 w-2 rounded-full bg-yellow-500/20" />
+                                                    <div className="h-2 w-2 rounded-full bg-green-500/20" />
+                                                </div>
+                                                <button
+                                                    onClick={() => {
+                                                        const code = generateUsageCode()
+                                                        navigator.clipboard.writeText(code)
+                                                        setCopied(true)
+                                                        setTimeout(() => setCopied(false), 2000)
+                                                    }}
+                                                    className="flex items-center gap-1.5 rounded-md bg-zinc-900 px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-400 transition-all hover:bg-zinc-800 hover:text-zinc-100 active:scale-95"
+                                                >
+                                                    {copied ? (
+                                                        <>
+                                                            <Check size={12} className="text-emerald-500" />
+                                                            <span>Copied</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Copy size={12} />
+                                                            <span>Copy</span>
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+
+                                            <div className="relative">
+                                                <div
+                                                    className="overflow-x-auto p-6 text-sm font-medium leading-relaxed font-mono selection:bg-accent/30 selection:text-zinc-100 [&_pre]:bg-transparent! [&_pre]:p-0! [&_pre]:m-0! [&_code]:bg-transparent! [&_span]:text-[inherit]!"
+                                                    dangerouslySetInnerHTML={{ __html: usageHighlightedCode || `<pre class="shiki"><code>${generateUsageCode()}</code></pre>` }}
+                                                />
+                                                {/* Parsing overlay if highlighting is slow */}
+                                                {isHighlighting && !usageHighlightedCode && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/50 backdrop-blur-[1px]">
+                                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-600 border-t-zinc-200" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                                         <section className="rounded-md border border-zinc-900 bg-zinc-900/20 p-8 shadow-inner">
                                             <h3 className="mb-6 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">
@@ -409,11 +498,11 @@ export function ComponentDetail({ slug, sourceCode, highlightedCode, basename }:
                                             </ul>
                                         </div>
                                     )) || (
-                                        <div className="flex h-60 flex-col items-center justify-center rounded-md border-2 border-dashed border-zinc-900 text-zinc-800">
-                                            <History size={48} className="mb-4 opacity-10" />
-                                            <p className="text-xs font-black uppercase tracking-[0.3em]">No changelog entries found.</p>
-                                        </div>
-                                    )}
+                                            <div className="flex h-60 flex-col items-center justify-center rounded-md border-2 border-zinc-900 text-zinc-800">
+                                                <History size={48} className="mb-4 opacity-10" />
+                                                <p className="text-xs font-black uppercase tracking-[0.3em]">No changelog entries found.</p>
+                                            </div>
+                                        )}
                                 </div>
                             )}
                         </motion.div>

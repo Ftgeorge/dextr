@@ -1,21 +1,25 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Construction, Play, Code2, Copy, Check, Sparkles } from "lucide-react"
+import { Construction, Play, Code2, Copy, Check, Sparkles, HelpCircle } from "lucide-react"
 import { useWorkbenchStore, ComponentNode } from "@/lib/workbench-store"
 import { ComponentRenderer } from "@/components/workbench/component-renderer"
 import { cn } from "@/lib/utils"
 import { WorkbenchSidebar } from "@/components/workbench/workbench-sidebar"
+import { useTour } from "@/components/tour/tour-provider"
 
 export default function WorkbenchPage() {
     const [copiedCode, setCopiedCode] = useState(false)
-   
+    
+    // Tour functionality
+    const { startWorkbenchTour } = useTour()
+
     // Workbench store
-    const { 
-        currentScene, 
-        selectedNodeId, 
-        showAnimations, 
-        showCode, 
+    const {
+        currentScene,
+        selectedNodeId,
+        showAnimations,
+        showCode,
         setCurrentScene,
         selectNode,
         toggleAnimations,
@@ -41,10 +45,10 @@ export default function WorkbenchPage() {
                     category: 'Inputs'
                 }
             }
-            
+
             const scene = createScene('Default Scene', rootNode)
             setCurrentScene(scene)
-            
+
             // Add a fade-in animation
             const animation = {
                 ...animationPresets['fade-in'],
@@ -60,7 +64,7 @@ export default function WorkbenchPage() {
         if (!currentScene) return ""
 
         const { root, animations } = currentScene
-        
+
         // Generate component props
         const props = Object.entries(root.props || {})
             .filter(([, value]) => value !== undefined && value !== "")
@@ -84,7 +88,7 @@ export default function WorkbenchPage() {
             const animationCode = animations.map(anim => {
                 const preset = animationPresets[anim.id]
                 if (!preset) return ""
-                
+
                 return `// ${preset.preset.name} Animation
 // Trigger: ${anim.trigger}
 // Duration: ${anim.config.duration}s
@@ -111,10 +115,10 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
 
     return (
         <div className="flex h-screen overflow-hidden bg-zinc-950 text-zinc-100 font-sans selection:bg-accent selection:text-accent-foreground">
-            
+
             {/* Header */}
             <div className="flex flex-1 overflow-hidden">
-                <WorkbenchSidebar/>
+                <WorkbenchSidebar />
 
                 {/* Main Content - Preview & Code */}
                 <main className="flex-1 overflow-y-auto">
@@ -129,9 +133,21 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                         <p className="text-[10px] text-zinc-500">Live Component Playground</p>
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-2">
                                     <button
+                                        onClick={startWorkbenchTour}
+                                        className={cn(
+                                            'p-2 rounded-md transition-colors',
+                                            'hover:bg-zinc-800'
+                                        )}
+                                        title="Start Tour"
+                                    >
+                                        <HelpCircle size={16} />
+                                    </button>
+                                    
+                                    <button
+                                        id="dexter-animation-controls"
                                         onClick={toggleAnimations}
                                         className={cn(
                                             'p-2 rounded-md transition-colors',
@@ -141,8 +157,9 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                     >
                                         <Sparkles size={16} />
                                     </button>
-                                    
+
                                     <button
+                                        id="dexter-code-view-toggle"
                                         onClick={toggleCode}
                                         className={cn(
                                             'p-2 rounded-md transition-colors',
@@ -160,7 +177,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                     <div className="container mx-auto max-w-7xl px-4 py-8">
                         <div className="space-y-6">
                             {/* Preview Area */}
-                            <div className="rounded-md border border-zinc-900 bg-zinc-900/20 p-6">
+                            <div className="rounded-md border border-zinc-900 bg-zinc-900/20 p-6" id="dexter-preview-area">
                                 <div className="mb-6 flex items-center justify-between">
                                     <h3 className="flex items-center gap-2 text-sm font-black uppercase tracking-widest text-zinc-300">
                                         <Play size={16} />
@@ -177,7 +194,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 <div className="min-h-48 flex items-center justify-center rounded-md border border-zinc-800 bg-zinc-950 p-8">
                                     <div className="w-full">
                                         {currentScene && (
@@ -217,7 +234,7 @@ transition={{ duration: ${anim.config.duration}, ease: "easeOut" }}`}`
                                             )}
                                         </button>
                                     </div>
-                                    
+
                                     <div className="rounded-md bg-zinc-950 border border-zinc-800 p-4 font-mono text-sm text-zinc-300">
                                         <pre className="whitespace-pre-wrap break-all">
                                             {generateCode()}

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { Search, ChevronRight, CheckCircle2, AlertCircle, Wrench, HelpCircle } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import Logo from "../ui/logo"
-import { useSimpleOnboarding } from "./simple-onboarding"
+import { useTour } from "../tour/tour-provider"
 import { components, ComponentStatus } from "@/lib/component-registry"
 
 const statusIcons: Record<ComponentStatus, LucideIcon> = {
@@ -27,7 +27,8 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedIndex, setSelectedIndex] = useState(-1)
     const [framework, setFramework] = useState<Framework>("react")
-    const { startOnboarding } = useSimpleOnboarding()
+    // const { startOnboarding } = useSimpleOnboarding()
+    const { startWorkshopTour } = useTour()
     const searchInputRef = useRef<HTMLInputElement>(null)
     const listRef = useRef<HTMLDivElement>(null)
     const pathname = usePathname()
@@ -115,7 +116,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
             <div className="sticky top-0 z-10 border-b border-zinc-900 bg-zinc-950 p-4">
                 <div className="mb-4 flex flex-col gap-3">
                     <Link href="/workshop" className="flex items-center gap-3">
-                        <Logo/>
+                        <Logo />
                     </Link>
 
                     <div className="flex items-center justify-between">
@@ -123,35 +124,35 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                             <div className="w-full overflow-x-auto rounded-md border border-zinc-900 bg-zinc-900/30 p-1 [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                                 <div className="flex min-w-max items-center gap-1 whitespace-nowrap">
                                     <button
-                                type="button"
-                                onClick={() => setFramework("react")}
-                                className={cn(
-                                    "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
-                                    framework === "react" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
-                                )}
-                            >
-                                React
-                            </button>
+                                        type="button"
+                                        onClick={() => setFramework("react")}
+                                        className={cn(
+                                            "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                            framework === "react" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                        )}
+                                    >
+                                        React
+                                    </button>
                                     <button
-                                type="button"
-                                onClick={() => setFramework("react-native")}
-                                className={cn(
-                                    "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
-                                    framework === "react-native" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
-                                )}
-                            >
-                                React Native
-                            </button>
+                                        type="button"
+                                        onClick={() => setFramework("react-native")}
+                                        className={cn(
+                                            "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                            framework === "react-native" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                        )}
+                                    >
+                                        React Native
+                                    </button>
                                     <button
-                                type="button"
-                                onClick={() => setFramework("flutter")}
-                                className={cn(
-                                    "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
-                                    framework === "flutter" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
-                                )}
-                            >
-                                Flutter
-                            </button>
+                                        type="button"
+                                        onClick={() => setFramework("flutter")}
+                                        className={cn(
+                                            "shrink-0 rounded-sm px-3 py-1.5 text-[10px] font-black uppercase tracking-widest",
+                                            framework === "flutter" ? "bg-zinc-800 text-accent" : "text-zinc-500 hover:text-zinc-300"
+                                        )}
+                                    >
+                                        Flutter
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -183,7 +184,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
             </div>
 
             {/* Scrollable Component List */}
-            <div ref={listRef} className="flex-1 overflow-y-auto" role="list">
+            <div ref={listRef} className="flex-1 overflow-y-auto" role="list" data-scrollable-content>
                 {framework !== "react" ? (
                     <div className="p-4">
                         <ComingSoon
@@ -272,8 +273,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
             <div className="sticky bottom-0 border-t border-zinc-900 bg-zinc-950 p-4 space-y-2">
                 <button
                     onClick={() => {
-                        console.log('Help button clicked, starting onboarding...')
-                        startOnboarding()
+                        startWorkshopTour()
                     }}
                     className="flex items-center justify-between w-full rounded-md border border-zinc-900 bg-zinc-900/30 px-4 py-3 transition-all hover:border-accent/40 hover:bg-zinc-900/50"
                 >
@@ -288,7 +288,7 @@ export function WorkshopSidebar({ className }: WorkshopSidebarProps) {
                     </div>
                     <ChevronRight size={14} className="text-zinc-600" />
                 </button>
-                
+
                 <Link
                     id="dexter-workbench"
                     href="/workbench"

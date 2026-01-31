@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Dropdown } from "@/components/ui/dropdown"
-import { usePreviewControls } from "@/components/workshop/component-preview"
+import { usePreviewControls } from "../workshop/component-preview"
 
 const options = [
     { value: "option1", label: "Option 1" },

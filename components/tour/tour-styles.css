@@ -1,0 +1,162 @@
+.shepherd-element {
+    background: #18181b;
+    /* zinc-900 */
+    border: 1px solid #27272a;
+    /* zinc-800 */
+    border-radius: 0.75rem;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    color: #030202;
+    /* zinc-50 */
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    max-width: 400px;
+    opacity: 0;
+    outline: none;
+    transition: opacity 0.3s, visibility 0.3s;
+    visibility: hidden;
+    z-index: 9999;
+}
+
+.shepherd-enabled.shepherd-element {
+    opacity: 1;
+    visibility: visible;
+}
+
+.shepherd-content {
+    outline: none;
+    padding: 0;
+}
+
+.shepherd-header {
+    align-items: center;
+    border-bottom: 1px solid #27272a;
+    /* zinc-800 */
+    display: flex;
+    justify-content: space-between;
+    line-height: 2em;
+    padding: 1rem 1.25rem;
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    background: #09090b;
+    /* zinc-950 - darker shade of black */
+}
+
+.shepherd-title {
+    display: flex;
+    flex: 1 0 auto;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    /* zinc-50 - light color for dark background */
+}
+
+.shepherd-cancel-icon {
+    background: transparent;
+    border: none;
+    color: #71717a;
+    /* zinc-500 */
+    cursor: pointer;
+    font-size: 2em;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.shepherd-cancel-icon:hover {
+    color: #fafafa;
+}
+
+.shepherd-text {
+    color: #d4d4d8;
+    /* zinc-300 */
+    font-size: 0.875rem;
+    line-height: 1.5;
+    padding: 1.25rem;
+}
+
+.shepherd-footer {
+    border-bottom-left-radius: 0.75rem;
+    border-bottom-right-radius: 0.75rem;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 1.25rem 1.25rem;
+}
+
+.shepherd-button {
+    background: #27272a;
+    /* zinc-800 */
+    border: 1px solid #3f3f46;
+    /* zinc-700 */
+    border-radius: 0.5rem;
+    color: #fafafa;
+    cursor: pointer;
+    display: inline-block;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+.shepherd-button:last-child {
+    margin-right: 0;
+}
+
+.shepherd-button:hover {
+    background: #3f3f46;
+    /* zinc-700 */
+}
+
+.shepherd-button-primary {
+    background: #8b5cf6;
+    /* accent */
+    border-color: #8b5cf6;
+    color: #ffffff;
+}
+
+.shepherd-button-primary:hover {
+    background: #6d28d9;
+    /* darker shade of accent - purple-700 */
+    border-color: #6d28d9;
+}
+
+.shepherd-arrow,
+.shepherd-arrow:before {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    z-index: -1;
+    background: #18181b;
+    border: 1px solid #27272a;
+    transform: rotate(45deg);
+}
+
+/* Hide specific borders based on placement to make it look seamless */
+.shepherd-element[data-popper-placement^='top'] .shepherd-arrow {
+    bottom: -8px;
+    border-top: none;
+    border-left: none;
+}
+
+.shepherd-element[data-popper-placement^='bottom'] .shepherd-arrow {
+    top: -8px;
+    border-bottom: none;
+    border-right: none;
+}
+
+.shepherd-element[data-popper-placement^='left'] .shepherd-arrow {
+    right: -8px;
+    border-bottom: none;
+    border-left: none;
+}
+
+.shepherd-element[data-popper-placement^='right'] .shepherd-arrow {
+    left: -8px;
+    border-top: none;
+    border-right: none;
+}

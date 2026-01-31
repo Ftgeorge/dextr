@@ -5,6 +5,7 @@ import { WorkshopSidebar } from "@/components/workshop/workshop-sidebar"
 import { MobileSidebarToggle } from "@/components/workshop/mobile-sidebar-toggle"
 import { MobileSidebarOverlay } from "@/components/workshop/mobile-sidebar-overlay"
 import Logo from "@/components/ui/logo"
+import { TourProvider } from "@/components/workshop/tour-provider"
 
 export default function WorkshopComponentsLayout({
     children,
@@ -24,16 +25,19 @@ export default function WorkshopComponentsLayout({
             <MobileSidebarOverlay open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
             {/* Main Pane - Flexible, scrollable */}
-            <main className="flex-1 overflow-y-auto">
-                {/* Mobile Header with Toggle */}
-                <div className="lg:hidden flex items-center justify-between p-4 border-b border-zinc-900">
-                    <MobileSidebarToggle onClick={() => setMobileSidebarOpen(true)} />
-                    <Logo/>
-                    <div className="w-10" />
-                </div>
+            <TourProvider>
+                <main className="flex-1 overflow-y-auto">
+                    {/* Mobile Header with Toggle */}
+                    <div className="lg:hidden flex items-center justify-between p-4 border-b border-zinc-900">
+                        <MobileSidebarToggle onClick={() => setMobileSidebarOpen(true)} />
+                        <Logo />
+                        <div className="w-10" />
+                    </div>
 
-                {children}
-            </main>
+                    {children}
+                </main>
+            </TourProvider>
+
         </div>
     )
 }

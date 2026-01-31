@@ -3,6 +3,9 @@
 import { motion } from "framer-motion"
 import { useState, useEffect, useMemo } from "react"
 
+import { HelpCircle } from "lucide-react"
+import { useTour } from "@/components/tour/tour-provider"
+
 const phrases = [
     "Redesign your interface system",
     "Harmonize component libraries",
@@ -11,6 +14,7 @@ const phrases = [
 ]
 
 export default function WorkshopPage() {
+    const { startWorkshopTour } = useTour()
     const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
     const [displayedText, setDisplayedText] = useState("")
     const [isDeleting, setIsDeleting] = useState(false)
@@ -64,7 +68,19 @@ export default function WorkshopPage() {
 
     return (
         <div className="flex h-full items-center justify-center bg-zinc-950 px-6 py-24 text-zinc-100">
-            <div className="flex max-w-3xl flex-col items-center text-center">
+            <div className="flex max-w-3xl flex-col items-center text-center" id="workshop-header">
+                {/* Help Button */}
+                <motion.button
+                    onClick={() => startWorkshopTour()}
+                    className="mb-8 flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/50 px-4 py-2 text-xs font-medium text-zinc-400 transition-colors hover:border-zinc-700 hover:text-zinc-200"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <HelpCircle size={14} />
+                    <span>Start Tour</span>
+                </motion.button>
+
                 {/* Typewriter Effect */}
                 <div className="mb-6 flex min-h-fit items-center justify-center">
                     <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
